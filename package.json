@@ -1,0 +1,24 @@
+{
+  "name": "reg2json",
+  "version": "1.0.0",
+  "description": "REG to JSON Service",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kphongph/reg2json.git"
+  },
+  "dependencies": {
+    "express": "*",
+    "html-to-json": "^0.5.1",
+    "iconv-lite": "^0.4.11",
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kphongph/reg2json/issues"
+  },
+  "homepage": "https://github.com/kphongph/reg2json#readme"
+}
