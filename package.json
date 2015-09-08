@@ -13,7 +13,7 @@
   "dependencies": {
     "express": "*",
     "html-to-json": "^0.5.1",
-    "iconv-lite": "^0.4.11",
+    "iconv-lite": "^0.4.11"
   },
   "author": "",
   "license": "ISC",
