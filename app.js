@@ -45,6 +45,12 @@ app.get('/course/:year/:semester', function (req, res) {
    
 });
 
+app.get('/course/:year/:semester/:course', function (req, res) {
+  util.getCourseInfo(req.params.year,req.params.semester,req.params.course,function(result) {  
+	res.json(result);
+  });
+});
+
 var server = app.listen(3000, function () {
   var host = server.address().address;
   var port = server.address().port;

@@ -288,15 +288,30 @@ exports.getCourseInfo = function(year,semester,courseid,cb) {
 
       var req = http.request(options, function(res) {
         toUTF8(res,function(utf8str) {
-          getLink(utf8str,function(links) {
-            for(var i=0;i<links.length;i++) {
-              if((/^student_inclass/).test(links[i].href)) {
-                query_grade(cookie,links[i],function(grade_list) {  
-                  cb(grade_list);
-                });
+		  var count=0;
+		  htmlToJson.parse(utf8str, {
+		    'font': ['font', function($tr) {
+				var tmp = {'count':count,'value':$tr.text()};
+				count++;
+				//console.log(tmp);
+				return tmp;
+			}]
+		  }, function(err, result) {
+			// console.log(result);
+            var section_info = {'id':result.font[0].value,'name':result.font[1].value,'result':result};
+            console.log(section_info);
+            getLink(utf8str,function(links) {
+              for(var i=0;i<links.length;i++) {
+                if((/^student_inclass/).test(links[i].href)) {
+                  query_grade(cookie,links[i],function(grade_list) {  
+					section_info['grade_list']=grade_list;
+                    cb(section_info);
+                  });
+                }
               }
-            }
-          });
+            });
+		  });
+
         });
       });
 
@@ -346,10 +361,8 @@ exports.getCourseInfo = function(year,semester,courseid,cb) {
           }
           var ret = [];
           for(var i=0;i<r.length;i++) {
-            query_section(cookie,r[i],function(grade) {
-              ret.push({
-                'grade':grade
-              });
+            query_section(cookie,r[i],function(section_info) {
+              ret.push(section_info);
               if(ret.length==r.length) {
                 cb(ret);
               }
