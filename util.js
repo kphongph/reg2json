@@ -305,6 +305,59 @@ exports.getCourseInfo = function(year,semester,courseid,cb) {
 			}]
 		  }, function(err, result) {
 			// console.log(result);
+			var add_index=0;
+			if(result.font[12].td2!=""){
+				//start_index=(result.font[12].td2).search(/ใช้งาน/i)
+				add_index=0;
+
+				if((result.font[12].td2).search(/[0-9][0-9][0-9][0-9][0-9][0-9]/i) != -1) {
+				  console.log("i find it");
+				  add_index=1;
+				}
+
+			}
+
+			var index_change_start=15;
+
+			var date_section =[];
+			var sq =0;
+			for(i=17;i<19;i++){
+				
+                date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
+				
+			   if(result.font[i+add_index].td3=='จันทร์'){						
+                     /*   date_section[sq]["day"]="จันทร์";
+                        date_section[sq]["time"]=result.font[i+add_index].td4;
+                        date_section[sq]["room"]=result.font[i+add_index].td5;
+                        sq++;*/
+
+						date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
+                        
+				}else if(result.font[i+add_index].td3=='อังคาร'){
+						
+						date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
+
+                }else if(result.font[i+add_index].td3=='พุธ'){
+						date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
+
+                }else if(result.font[i+add_index].td3=='พฤหัสบดี'){
+						date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
+
+                }else if(result.font[i+add_index].td3=='ศุกร์'){
+						date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
+
+               		
+                }else if(result.font[i+add_index].td3=='เสาร์'){
+						date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
+
+				}else if(result.font[i+add_index].td3=='อาทิตย์'){
+						date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
+
+                }
+
+			  //console.log(sq+result.font[i+add_index].td3);
+			}
+
 
 
             var section_info = {
@@ -319,6 +372,10 @@ exports.getCourseInfo = function(year,semester,courseid,cb) {
 			,'faculty':result.font[10].td2	
 			,'credit':result.font[11].td2
 			,'status':result.font[12].td2
+			,'planner':result.font[15+add_index].td1
+			,'section_no':result.font[17+add_index].td1
+			,'date_section':date_section
+			,'status_remove_prefix':add_index
 		    ,'result':result
 			};
             console.log(section_info);
