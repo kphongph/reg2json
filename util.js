@@ -290,15 +290,37 @@ exports.getCourseInfo = function(year,semester,courseid,cb) {
         toUTF8(res,function(utf8str) {
 		  var count=0;
 		  htmlToJson.parse(utf8str, {
-		    'font': ['font', function($tr) {
-				var tmp = {'count':count,'value':$tr.text()};
+		    'font': ['tr', function($tr) {
+				var tmp = {'count':count,'td0':$tr.children(0).text()
+					,'td1':$tr.children(1).text()
+					,'td2':$tr.children(2).text()
+					,'td3':$tr.children(3).text()
+					,'td4':$tr.children(4).text()
+					,'td5':$tr.children(5).text()
+					
+					};
 				count++;
 				//console.log(tmp);
 				return tmp;
 			}]
 		  }, function(err, result) {
 			// console.log(result);
-            var section_info = {'id':result.font[0].value,'name':result.font[1].value,'result':result};
+
+
+            var section_info = {
+			/*'id':result.font[0].value,'name_en':result.font[1].value
+			,'name_th':result.font[2].value	
+			,'faculty':result.font[4].value	
+			,'credit':result.font[6].value	
+			,'semester':result.font[12].value
+			,'planner':result.font[14].value*/
+			'id':result.font[8].td0
+			,'name_en':result.font[8].td1
+			,'faculty':result.font[10].td2	
+			,'credit':result.font[11].td2
+			,'status':result.font[12].td2
+		    ,'result':result
+			};
             console.log(section_info);
             getLink(utf8str,function(links) {
               for(var i=0;i<links.length;i++) {
