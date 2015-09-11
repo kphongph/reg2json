@@ -290,93 +290,61 @@ exports.getCourseInfo = function(year,semester,courseid,cb) {
         toUTF8(res,function(utf8str) {
 		  var count=0;
 		  htmlToJson.parse(utf8str, {
-		    'font': ['tr', function($tr) {
-				var tmp = {'count':count,'td0':$tr.children(0).text()
-					,'td1':$tr.children(1).text()
-					,'td2':$tr.children(2).text()
-					,'td3':$tr.children(3).text()
-					,'td4':$tr.children(4).text()
-					,'td5':$tr.children(5).text()
-					
-					};
-				count++;
-				//console.log(tmp);
-				return tmp;
+		    'tr': ['tr', function($tr) {
+          var tmp = {'count':$tr.children().length,'text':$tr.text()};
+
+          for(var i=0;i<$tr.children().length;i++) {
+            tmp['td'+i] = $tr.children(i).text();
+          }
+  				return tmp;
 			}]
 		  }, function(err, result) {
-			// console.log(result);
-			var add_index=0;
-			if(result.font[12].td2!=""){
-				//start_index=(result.font[12].td2).search(/ใช้งาน/i)
-				add_index=0;
-
-				if((result.font[12].td2).search(/[0-9][0-9][0-9][0-9][0-9][0-9]/i) != -1) {
-				  console.log("i find it");
-				  add_index=1;
-				}
-
-			}
-
-			var index_change_start=15;
-
-			var date_section =[];
-			var sq =0;
-			for(i=17;i<19;i++){
-				
-                date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
-				
-			   if(result.font[i+add_index].td3=='จันทร์'){						
-                     /*   date_section[sq]["day"]="จันทร์";
-                        date_section[sq]["time"]=result.font[i+add_index].td4;
-                        date_section[sq]["room"]=result.font[i+add_index].td5;
-                        sq++;*/
-
-						date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
-                        
-				}else if(result.font[i+add_index].td3=='อังคาร'){
-						
-						date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
-
-                }else if(result.font[i+add_index].td3=='พุธ'){
-						date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
-
-                }else if(result.font[i+add_index].td3=='พฤหัสบดี'){
-						date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
-
-                }else if(result.font[i+add_index].td3=='ศุกร์'){
-						date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
-
-               		
-                }else if(result.font[i+add_index].td3=='เสาร์'){
-						date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
-
-				}else if(result.font[i+add_index].td3=='อาทิตย์'){
-						date_section.push({'day': result.font[i+add_index].td3 , 'time': result.font[i+add_index].td4,'room':result.font[i+add_index].td5 });
-
-                }
-
-			  //console.log(sq+result.font[i+add_index].td3);
-			}
+        // find group name
+        var group_row = 0;
+        for(var i=0;i<result.tr.length;i++) {
+          if(result.tr[i].count == 11) {
+            group_row = i;
+            break;
+          }
+        }
+        console.log('group_row',group_row);
+        // group_id
+        var idx = group_row+1;
+        var group_id = result.tr[idx].td1.replace(/\s+/g,'');
+        var date_section = [];
+        while(result.tr[idx].count == 14) {
+          var tmp = {
+            'day':result.tr[idx].td3,
+            'time':result.tr[idx].td4,
+            'room':result.tr[idx].td5
+          }
+          date_section.push(tmp);
+          idx++;
+        }
+        
+        var lecturer = result.tr[idx].td4;
 
 
 
-            var section_info = {
+
+       var section_info = {
 			/*'id':result.font[0].value,'name_en':result.font[1].value
 			,'name_th':result.font[2].value	
 			,'faculty':result.font[4].value	
 			,'credit':result.font[6].value	
 			,'semester':result.font[12].value
 			,'planner':result.font[14].value*/
-			'id':result.font[8].td0
-			,'name_en':result.font[8].td1
-			,'faculty':result.font[10].td2	
-			,'credit':result.font[11].td2
-			,'status':result.font[12].td2
-			,'planner':result.font[15+add_index].td1
-			,'section_no':result.font[17+add_index].td1
-			,'date_section':date_section
-			,'status_remove_prefix':add_index
-		    ,'result':result
+			'id':result.tr[8].td0
+			,'name_en':result.tr[8].td1
+			,'faculty':result.tr[10].td2	
+			,'credit':result.tr[11].td2
+			,'status':result.tr[12].td2
+			//,'planner':result.font[15+add_index].td1
+			,'section_no':group_id
+			 ,'date_section':date_section,
+      'lecturer':lecturer
+			//,'status_remove_prefix':add_index
+		  // 'result':result
 			};
             console.log(section_info);
             getLink(utf8str,function(links) {
