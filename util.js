@@ -252,18 +252,21 @@ exports.getCourseInfo = function(year,semester,courseid,cb) {
           htmlToJson.parse(utf8str,{
             'tr':['tr',function($tr) {
               var tmp = {
-                'id': $tr.children(1).text().replace(/\s+/g,''),
+              //  'id': $tr.children(1).text(),
+                'course_plan': $tr.children(3).text(),
+              // 'course_plan': $tr.children(3).text().replace(/\s+/g,''),
                 'grade': $tr.children(5).text().replace(/\s+/g,'')
               }
-              if(tmp.id.length<20) { 
+             // if(tmp.id.length<20) { 
                 return tmp; 
-              }
+             // }
             }]
           }, function(err, result) {
             var r = [];
             var tr = result.tr;
             for(var i=0;i<tr.length;i++) {
-              if(tr[i]&&(/\d{8}/).test(tr[i].id)) {
+             // if(tr[i]&&(/\d{8}/).test(tr[i].id)) {
+               if(tr[i]&&((tr[i].grade.length==2)|(tr[i].grade.length==1))) {
                 r.push(tr[i]);
               }
              
@@ -342,11 +345,12 @@ exports.getCourseInfo = function(year,semester,courseid,cb) {
 			//,'planner':result.font[15+add_index].td1
 			,'section_no':group_id
 			 ,'date_section':date_section,
-      'lecturer':lecturer
+      'lecturer':lecturer,
+      //  'count_student':grade_list.length
 			//,'status_remove_prefix':add_index
 		  // 'result':result
 			};
-            console.log(section_info);
+            //console.log(section_info);
             getLink(utf8str,function(links) {
               for(var i=0;i<links.length;i++) {
                 if((/^student_inclass/).test(links[i].href)) {
