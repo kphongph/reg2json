@@ -253,6 +253,7 @@ exports.getCourseInfo = function(year,semester,courseid,cb) {
             'tr':['tr',function($tr) {
               var tmp = {
               //  'id': $tr.children(1).text(),
+                'id': ($tr.children(1).text()).substring(0, 3),
                 'course_plan': $tr.children(3).text(),
               // 'course_plan': $tr.children(3).text().replace(/\s+/g,''),
                 'grade': $tr.children(5).text().replace(/\s+/g,'')
