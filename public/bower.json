@@ -1,0 +1,28 @@
+{
+  "name": "reg2json-tqf",
+  "version": "0.0.1",
+  "authors": [
+    "Mattareeya Rachbuasri <matzeeya@gmail.com>"
+  ],
+  "description": "An element providing a solution to no problem in particular.",
+  "keywords": [
+    "web-component",
+    "polymer",
+    "seed"
+  ],
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "ignore": [
+    "/.*",
+    "/test/",
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "grade-report": "*",
+    "polymer": "Polymer/polymer#^1.0.0"
+  },
+  "devDependencies": {}
+}
