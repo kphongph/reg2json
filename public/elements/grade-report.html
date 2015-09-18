@@ -56,6 +56,11 @@ Example:
               <div class="flex-1 self-center"><b>C</b></div>
               <div class="flex-1 self-center"><b>D+</b></div>
               <div class="flex-1 self-center"><b>D</b></div>
+              <div class="flex-1 self-center"><b>F</b></div>
+              <div class="flex-1 self-center"><b>W</b></div>
+              <div class="flex-1 self-center"><b>S</b></div>
+              <div class="flex-1 self-center"><b>I</b></div>
+              <div class="flex-1 self-center"><b>U</b></div>
             </div>
           </div>
           <template is="dom-repeat" items="{{plan.years}}" as="year">
@@ -69,6 +74,11 @@ Example:
               <div class="flex-1 self-center">{{year.grade.C}}</div>
               <div class="flex-1 self-center">{{year.grade.Dp}}</div>
               <div class="flex-1 self-center">{{year.grade.D}}</div>
+              <div class="flex-1 self-center">{{year.grade.F}}</div>
+              <div class="flex-1 self-center">{{year.grade.W}}</div>
+              <div class="flex-1 self-center">{{year.grade.S}}</div>
+              <div class="flex-1 self-center">{{year.grade.I}}</div>
+              <div class="flex-1 self-center">{{year.grade.U}}</div>
               </div>
             </div>
           </template>  
@@ -136,8 +146,8 @@ Example:
         }
       }
       
-      var grade_order = ['A','B','C','C+','B+','D','D+','W'];
-      var grade_name = ['A','B','C','Cp','Bp','D','Dp','W'];
+      var grade_order = ['A','B','C','C+','B+','D','D+','F','W','S','I','U'];
+      var grade_name = ['A','B','C','Cp','Bp','D','Dp','F','W','S','I','U'];
       
       this.set('plans',[]);
       for(var key in plan_dict) {
