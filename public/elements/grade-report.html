@@ -1,0 +1,161 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+    <seed-element></seed-element>
+
+@group Seed Elements
+@element seed-element
+@demo demo/index.html
+@hero hero.svg
+-->
+<dom-module id="grade-report">
+        
+  <template>
+    
+    <style>
+    :host {
+      display: block;
+      box-sizing: border-box;
+    }
+  </style>
+    
+    <iron-ajax 
+      id="getQuery"            
+      handle-as="json"
+      on-response="_handleResponse"></iron-ajax>
+          
+    <paper-material>
+    <table>         
+      <template is="dom-repeat" items="{{plans}}" as="plan">        
+        <tr>        
+          <td>{{plan.name}}</td>
+          <td>A</td>
+          <td>B</td>
+          <td>C</td>
+          <td>D+</td>
+          <td>D</td>
+          <td>W</td>
+        </tr>
+        <template is="dom-repeat" items="{{plan.years}}" as="year">
+          <tr>
+            <td>{{year.year}}</td>          
+            <td>{{year.grade.A}}</td>
+            <td>{{year.grade.B}}</td>
+            <td>{{year.grade.C}}</td>
+            <td>{{year.grade.Dp}}</td>
+            <td>{{year.grade.D}}</td>
+            <td>{{year.grade.W}}</td>
+          </tr>
+        </template>        
+      </template>
+    </table>
+    </paper-material>
+  </template>
+
+<script>
+
+  Polymer({
+      is: 'grade-report',
+      properties: {
+        year: String,
+        semester: String,
+        course:String,
+        loading: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        plans: {
+          type: Array,
+          value : function() {
+            return [];
+          },
+          notify: true
+        }
+      },
+    
+      ready: function() {      
+      },
+    
+    observers: [
+      'updateQuery(year,semester,course)'
+    ],
+    
+    updateQuery: function(year,semester,course) {      
+      var check_st = year+''+semester+''+course;
+      //console.log(check_st,this.loading);
+      if((/^\d{11}$/).test(check_st)) {
+        this.loading = true;
+        //console.log(check_st,this.loading);
+        this.$.getQuery.url = "/course/"+year+"/"+semester+"/"+course;
+        this.$.getQuery.generateRequest();
+      }
+    },    
+    _handleResponse: function() {
+      var section_list = this.$.getQuery.lastResponse;
+      var plan_dict = {};
+      for(var i=0;i<section_list.length;i++) {
+        var grade_list = section_list[i].grade_list;
+        for(var j=0;j<grade_list.length;j++) {
+          var tmp = grade_list[j];
+          if(!plan_dict[tmp.course_plan]) {
+            plan_dict[tmp.course_plan] = {};
+          }
+          if(!plan_dict[tmp.course_plan][tmp.id]) {
+            plan_dict[tmp.course_plan][tmp.id] = {};
+          }
+          if(!plan_dict[tmp.course_plan][tmp.id][tmp.grade]) {
+            plan_dict[tmp.course_plan][tmp.id][tmp.grade] = 0;
+          }
+          plan_dict[tmp.course_plan][tmp.id][tmp.grade]++;
+        }
+      }
+      
+      var grade_order = ['A','B','C','C+','B+','D','D+','W'];
+      var grade_name = ['A','B','C','Cp','Bp','D','Dp','W'];
+      
+      this.set('plans',[]);
+      for(var key in plan_dict) {
+        var plan = {name:key,'years':[]};        
+        for(var year in plan_dict[key]) {
+          var year_obj = {'year':year,'grade':{}};
+          for(var k=0;k<grade_name.length;k++) {
+            year_obj.grade[grade_name[k]] = 0;
+          }
+          for(var grade in plan_dict[key][year]) {    
+            var idx = grade_name[grade_order.indexOf(grade)];            
+            if(idx!=-1) {
+              var name = grade_name[grade_order.indexOf(grade)];
+              year_obj.grade[name]=plan_dict[key][year][grade];            
+            }
+          }                              
+          
+          plan.years.push(year_obj);         
+        }
+        this.push('plans',plan);
+      }
+      this.loading = false;
+      
+    }    
+
+  });
+
+</script>
+  
+</dom-module>

@@ -1,8 +1,24 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../bower_components/grade-report/grade-report.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="./grade-report.html">
 
-
-<dom
-     <template>
-<paper-input value="{{year}}"
-<grade-report year="{{year}}" semester="1" course="303206"></grade-report> 
+<dom-module id="grade-report-panel">
+  <template>
+    <paper-input label="Year" value="{{year}}"></paper-input>
+    <paper-input label="Semester" value="{{semester}}"></paper-input>
+    <paper-input label="Course" value="{{course}}"></paper-input>
+    <paper-spinner active="{{loading}}"></paper-spinner>
+    <grade-report 
+      year="{{year}}" 
+      loading="{{loading}}"
+      semester="{{semester}}" 
+      course="{{course}}">
+    </grade-report> 
+  </template>
+  <script>
+    Polymer({
+      is: 'grade-report-panel'
+    });
+  </script>
+</dom-module>
