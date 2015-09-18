@@ -5,16 +5,24 @@
 
 <dom-module id="grade-report-panel">
   <template>
-    <paper-input label="Year" value="{{year}}"></paper-input>
-    <paper-input label="Semester" value="{{semester}}"></paper-input>
-    <paper-input label="Course" value="{{course}}"></paper-input>
-    <paper-spinner active="{{loading}}"></paper-spinner>
-    <grade-report 
-      year="{{year}}" 
-      loading="{{loading}}"
-      semester="{{semester}}" 
-      course="{{course}}">
-    </grade-report> 
+    <div class="vertial layout" style="width:600px">
+      <div class="horizontal layout flex" >
+        <paper-input label="Year" value="{{year}}" ></paper-input>
+        <paper-input label="Semester" value="{{semester}}"></paper-input>
+        <paper-input label="Course" value="{{course}}" class="flex"></paper-input>
+      </div>
+      <div>
+        <paper-spinner active="{{loading}}"></paper-spinner>
+      </div>
+      <div>
+        <grade-report year="{{year}}" 
+          loading="{{loading}}"
+          semester="{{semester}}" 
+          course="{{course}}">
+        </grade-report> 
+      </div>
+    </div>
+    
   </template>
   <script>
     Polymer({

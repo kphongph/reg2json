@@ -33,6 +33,9 @@ Example:
       display: block;
       box-sizing: border-box;
     }
+    .hl {
+      background:#EFEFEF;
+    }
   </style>
     
     <iron-ajax 
@@ -41,30 +44,36 @@ Example:
       on-response="_handleResponse"></iron-ajax>
           
     <paper-material>
-    <table>         
-      <template is="dom-repeat" items="{{plans}}" as="plan">        
-        <tr>        
-          <td>{{plan.name}}</td>
-          <td>A</td>
-          <td>B</td>
-          <td>C</td>
-          <td>D+</td>
-          <td>D</td>
-          <td>W</td>
-        </tr>
-        <template is="dom-repeat" items="{{plan.years}}" as="year">
-          <tr>
-            <td>{{year.year}}</td>          
-            <td>{{year.grade.A}}</td>
-            <td>{{year.grade.B}}</td>
-            <td>{{year.grade.C}}</td>
-            <td>{{year.grade.Dp}}</td>
-            <td>{{year.grade.D}}</td>
-            <td>{{year.grade.W}}</td>
-          </tr>
-        </template>        
+      <template is="dom-repeat" items="{{plans}}" as="plan">
+        <div class="vertical layout">
+          <div class="horizontal layout">
+            <div class="flex-2 self-center hl">{{plan.name}}</div>
+            <div class="horizontal layout flex-4 hl">
+              <div class="flex-1 self-center"><b>A</b></div>
+              <div class="flex-1 self-center"><b>B+</b></div>
+              <div class="flex-1 self-center"><b>B</b></div>
+              <div class="flex-1 self-center"><b>C+</b></div>
+              <div class="flex-1 self-center"><b>C</b></div>
+              <div class="flex-1 self-center"><b>D+</b></div>
+              <div class="flex-1 self-center"><b>D</b></div>
+            </div>
+          </div>
+          <template is="dom-repeat" items="{{plan.years}}" as="year">
+            <div class="horizontal layout center-justified">
+              <div class="flex-2 self-center">{{year.year}}</div>
+              <div class="horizontal layout flex-4">
+              <div class="flex-1 self-center">{{year.grade.A}}</div>
+              <div class="flex-1 self-center">{{year.grade.Bp}}</div>
+              <div class="flex-1 self-center">{{year.grade.B}}</div>
+              <div class="flex-1 self-center">{{year.grade.Cp}}</div>
+              <div class="flex-1 self-center">{{year.grade.C}}</div>
+              <div class="flex-1 self-center">{{year.grade.Dp}}</div>
+              <div class="flex-1 self-center">{{year.grade.D}}</div>
+              </div>
+            </div>
+          </template>  
+        </div>
       </template>
-    </table>
     </paper-material>
   </template>
 
