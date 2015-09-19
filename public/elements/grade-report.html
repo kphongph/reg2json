@@ -33,9 +33,19 @@ Example:
       display: block;
       box-sizing: border-box;
     }
-    .hl {
-      background:#EFEFEF;
+    .header {
+      border-bottom:solid 1px #ccc;
+      font-family:Roboto;
+      font-size:12px;
+      text-align:right;
     }
+    .content {
+      border-bottom:solid 1px #ccc;
+      font-family:Roboto;
+      font-size:13px;
+      text-align:right;
+    }
+    
   </style>
     
     <iron-ajax 
@@ -47,8 +57,8 @@ Example:
       <template is="dom-repeat" items="{{plans}}" as="plan">
         <div class="vertical layout">
           <div class="horizontal layout">
-            <div class="flex-2 self-center hl">{{plan.name}}</div>
-            <div class="horizontal layout flex-4 hl">
+            <div class="flex-2 self-center header">{{plan.name}}</div>
+            <div class="horizontal layout flex-4 header">
               <div class="flex-1 self-center"><b>A</b></div>
               <div class="flex-1 self-center"><b>B+</b></div>
               <div class="flex-1 self-center"><b>B</b></div>
@@ -65,8 +75,8 @@ Example:
           </div>
           <template is="dom-repeat" items="{{plan.years}}" as="year">
             <div class="horizontal layout center-justified">
-              <div class="flex-2 self-center">{{year.year}}</div>
-              <div class="horizontal layout flex-4">
+              <div class="flex-2 self-center content">{{year.year}}</div>
+              <div class="horizontal layout flex-4 content">
               <div class="flex-1 self-center">{{year.grade.A}}</div>
               <div class="flex-1 self-center">{{year.grade.Bp}}</div>
               <div class="flex-1 self-center">{{year.grade.B}}</div>

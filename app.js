@@ -53,9 +53,9 @@ app.get('/course/:year/:semester/:course', function (req, res) {
   });
 });
 
-var server = app.listen(3000, function () {
-  var host = server.address().address;
-  var port = server.address().port;
+var server = app.listen(process.env.PORT, function () {
+  var host = process.env.IP;
+  var port = process.env.PORT;
 
   console.log('Example app listening at http://%s:%s', host, port);
 });
