@@ -11,6 +11,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <!--
 An element providing a solution to no problem in particular.
@@ -33,17 +35,30 @@ Example:
       display: block;
       box-sizing: border-box;
     }
+    .horizontal {
+      @apply(--layout-horizontal);
+      border:1px solid #AAA;
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .columnPlan{
+      @apply(--layout-flex-4); 
+    }
+    .columnA{
+      @apply(--layout-flex-auto); 
+    }
     .header {
-      border-bottom:solid 1px #ccc;
-      font-family:Roboto;
-      font-size:12px;
-      text-align:right;
+      @apply(--paper-font-body1);
+      background: var(--default-primary-color);
+      color: var(--text-primary-color);
+      height:40px;
+      text-align:center;
     }
     .content {
-      border-bottom:solid 1px #ccc;
-      font-family:Roboto;
-      font-size:13px;
+      @apply(--paper-font-body1);
       text-align:right;
+      margin-right:5px;
     }
     
   </style>
@@ -54,41 +69,46 @@ Example:
       on-response="_handleResponse"></iron-ajax>
           
     <paper-material>
-      <template is="dom-repeat" items="{{plans}}" as="plan">
-        <div class="vertical layout">
-          <div class="horizontal layout">
-            <div class="flex-2 self-center header">{{plan.name}}</div>
-            <div class="horizontal layout flex-4 header">
-              <div class="flex-1 self-center"><b>A</b></div>
-              <div class="flex-1 self-center"><b>B+</b></div>
-              <div class="flex-1 self-center"><b>B</b></div>
-              <div class="flex-1 self-center"><b>C+</b></div>
-              <div class="flex-1 self-center"><b>C</b></div>
-              <div class="flex-1 self-center"><b>D+</b></div>
-              <div class="flex-1 self-center"><b>D</b></div>
-              <div class="flex-1 self-center"><b>F</b></div>
-              <div class="flex-1 self-center"><b>W</b></div>
-              <div class="flex-1 self-center"><b>S</b></div>
-              <div class="flex-1 self-center"><b>I</b></div>
-              <div class="flex-1 self-center"><b>U</b></div>
-            </div>
+      <div class="vertical">
+        <template is="dom-if" if="{{hasPlan}}">
+        <div class="horizontal">
+          <div class="columnPlan">Plan-Year</div>
+          <div class="horizontal">
+            <div class="columnA">A</div>
+            <div class="columnA">B+</div>
+            <div class="columnA">B</div>
+            <div class="columnA">C+</div>
+            <div class="columnA">C</div>
+            <div class="columnA">D+</div>
+            <div class="columnA">D</div>
+            <div class="columnA">F</div>
+            <div class="columnA">W</div>
+            <div class="columnA">S</div>
+            <div class="columnA">I</div>
+            <div class="columnA">U</div>
           </div>
+        </div>
+        </template>
+        <template is="dom-repeat" items="{{plans}}" as="plan">
           <template is="dom-repeat" items="{{plan.years}}" as="year">
-            <div class="horizontal layout center-justified">
-              <div class="flex-2 self-center content">{{year.year}}</div>
-              <div class="horizontal layout flex-4 content">
-              <div class="flex-1 self-center">{{year.grade.A}}</div>
-              <div class="flex-1 self-center">{{year.grade.Bp}}</div>
-              <div class="flex-1 self-center">{{year.grade.B}}</div>
-              <div class="flex-1 self-center">{{year.grade.Cp}}</div>
-              <div class="flex-1 self-center">{{year.grade.C}}</div>
-              <div class="flex-1 self-center">{{year.grade.Dp}}</div>
-              <div class="flex-1 self-center">{{year.grade.D}}</div>
-              <div class="flex-1 self-center">{{year.grade.F}}</div>
-              <div class="flex-1 self-center">{{year.grade.W}}</div>
-              <div class="flex-1 self-center">{{year.grade.S}}</div>
-              <div class="flex-1 self-center">{{year.grade.I}}</div>
-              <div class="flex-1 self-center">{{year.grade.U}}</div>
+            <div class="">
+              <div class="">
+                <span>{{plan.name}}</span>-<span>{{year.year}}</span>
+              </div>
+              
+              <div class="">
+                <div class="">{{year.grade.A}}</div>
+                <div class="">{{year.grade.Bp}}</div>
+                <div class="">{{year.grade.B}}</div>
+                <div class="">{{year.grade.Cp}}</div>
+                <div class="">{{year.grade.C}}</div>
+                <div class="">{{year.grade.Dp}}</div>
+                <div class="">{{year.grade.D}}</div>
+                <div class="">{{year.grade.F}}</div>
+                <div class="">{{year.grade.W}}</div>
+                <div class="">{{year.grade.S}}</div>
+                <div class="">{{year.grade.I}}</div>
+                <div class="">{{year.grade.U}}</div>
               </div>
             </div>
           </template>  
@@ -116,6 +136,11 @@ Example:
             return [];
           },
           notify: true
+        },
+        hasPlan: {
+         type:Boolean,
+         value: false,
+         notify:true
         }
       },
     
@@ -125,7 +150,6 @@ Example:
     observers: [
       'updateQuery(year,semester,course)'
     ],
-    
     updateQuery: function(year,semester,course) {      
       var check_st = year+''+semester+''+course;
       //console.log(check_st,this.loading);
@@ -160,6 +184,7 @@ Example:
       var grade_name = ['A','B','C','Cp','Bp','D','Dp','F','W','S','I','U'];
       
       this.set('plans',[]);
+      this.set('hasPlan',false);
       for(var key in plan_dict) {
         var plan = {name:key,'years':[]};        
         for(var year in plan_dict[key]) {
@@ -178,6 +203,7 @@ Example:
           plan.years.push(year_obj);         
         }
         this.push('plans',plan);
+        this.set('hasPlan',true);
       }
       this.loading = false;
       
