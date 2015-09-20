@@ -37,30 +37,65 @@ Example:
     }
     .horizontal {
       @apply(--layout-horizontal);
-      border:1px solid #AAA;
     }
     .vertical {
       @apply(--layout-vertical);
     }
-    .columnPlan{
+    .flex-4 {
       @apply(--layout-flex-4); 
     }
-    .columnA{
-      @apply(--layout-flex-auto); 
+    .flex-7 {
+      @apply(--layout-flex-8); 
     }
+    
+    .flex-1 {
+      @apply(--layout-flex-1); 
+    }
+    
     .header {
+      @apply(--paper-font-body1);
+      background: var(--dark-primary-color);
+      color: var(--text-primary-color);
+      height:30px;
+      text-align:center;
+      padding:5px;
+    }
+    .grade-header {
       @apply(--paper-font-body1);
       background: var(--default-primary-color);
       color: var(--text-primary-color);
       height:40px;
-      text-align:center;
-    }
-    .content {
-      @apply(--paper-font-body1);
-      text-align:right;
-      margin-right:5px;
     }
     
+    .content {
+      @apply(--paper-font-caption);
+      text-align:right;
+      margin:7px 5px 5px;
+    }
+    
+    .text {
+      @apply(--paper-font-caption);
+      @apply(--paper-font-Subhead);
+      height:25px;
+      text-align:left;
+      margin:7px 5px 5px;
+    }
+    
+    .text2 {
+      @apply(--paper-font-caption);
+      @apply(--paper-font-Subhead);
+      height:25px;
+      text-align:right;
+      margin:7px 5px 5px;
+    }
+    
+    .shadow {
+       /*@apply(--)shadow-elevation-2dp);*/
+       box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+       0 1px 5px 0 rgba(0, 0, 0, 0.12),
+       0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    }
+
   </style>
     
     <iron-ajax 
@@ -69,48 +104,49 @@ Example:
       on-response="_handleResponse"></iron-ajax>
           
     <paper-material>
-      <div class="vertical">
+        <div class="vertical">
         <template is="dom-if" if="{{hasPlan}}">
-        <div class="horizontal">
-          <div class="columnPlan">Plan-Year</div>
-          <div class="horizontal">
-            <div class="columnA">A</div>
-            <div class="columnA">B+</div>
-            <div class="columnA">B</div>
-            <div class="columnA">C+</div>
-            <div class="columnA">C</div>
-            <div class="columnA">D+</div>
-            <div class="columnA">D</div>
-            <div class="columnA">F</div>
-            <div class="columnA">W</div>
-            <div class="columnA">S</div>
-            <div class="columnA">I</div>
-            <div class="columnA">U</div>
+          <div class="horizontal shadow grade-header">
+            <div class="flex-4 text"><span>Plan</span></div>
+            <div class="flex-1 text2"><span>Year</span></div>
+            <div class="horizontal flex-7">
+              <div class="flex-1 text2">A</div>
+              <div class="flex-1 text2">B+</div>
+              <div class="flex-1 text2">B</div>
+              <div class="flex-1 text2">C+</div>
+              <div class="flex-1 text2">C</div>
+              <div class="flex-1 text2">D+</div>
+              <div class="flex-1 text2">D</div>
+              <div class="flex-1 text2">F</div>
+              <div class="flex-1 text2">W</div>
+              <div class="flex-1 text2">S</div>
+              <div class="flex-1 text2">I</div>
+              <div class="flex-1 text2">U</div>
+            </div>
           </div>
         </div>
         </template>
+        
         <template is="dom-repeat" items="{{plans}}" as="plan">
           <template is="dom-repeat" items="{{plan.years}}" as="year">
-            <div class="">
-              <div class="">
-                <span>{{plan.name}}</span>-<span>{{year.year}}</span>
-              </div>
-              
-              <div class="">
-                <div class="">{{year.grade.A}}</div>
-                <div class="">{{year.grade.Bp}}</div>
-                <div class="">{{year.grade.B}}</div>
-                <div class="">{{year.grade.Cp}}</div>
-                <div class="">{{year.grade.C}}</div>
-                <div class="">{{year.grade.Dp}}</div>
-                <div class="">{{year.grade.D}}</div>
-                <div class="">{{year.grade.F}}</div>
-                <div class="">{{year.grade.W}}</div>
-                <div class="">{{year.grade.S}}</div>
-                <div class="">{{year.grade.I}}</div>
-                <div class="">{{year.grade.U}}</div>
-              </div>
-            </div>
+                <div class="horizontal shadow">
+                 <div class="flex-4 text">{{plan.name}}</div>
+                 <div class="flex-1 content">{{year.year}}</div>
+                  <div class="horizontal flex-7">
+                      <div class="flex-1 content">{{year.grade.A}}</div>
+                      <div class="flex-1 content">{{year.grade.Bp}}</div>
+                      <div class="flex-1 content">{{year.grade.B}}</div>
+                      <div class="flex-1 content">{{year.grade.Cp}}</div>
+                      <div class="flex-1 content">{{year.grade.C}}</div>
+                      <div class="flex-1 content">{{year.grade.Dp}}</div>
+                      <div class="flex-1 content">{{year.grade.D}}</div>
+                      <div class="flex-1 content">{{year.grade.F}}</div>
+                      <div class="flex-1 content">{{year.grade.W}}</div>
+                      <div class="flex-1 content">{{year.grade.S}}</div>
+                      <div class="flex-1 content">{{year.grade.I}}</div>
+                      <div class="flex-1 content">{{year.grade.U}}</div> 
+                  </div>
+                </div>
           </template>  
         </div>
       </template>
