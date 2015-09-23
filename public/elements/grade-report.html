@@ -35,6 +35,19 @@ Example:
       display: block;
       box-sizing: border-box;
     }
+    
+    .center {
+      @apply(--layout-center);
+    }
+    
+    .layout {
+      @apply(--layout);
+    }
+    
+    .center-layout{
+      @apply(--layout-center);
+      @apply(--layout);
+    }
     .horizontal {
       @apply(--layout-horizontal);
     }
@@ -58,6 +71,9 @@ Example:
       color: #000;
       opacity: 0.54;
       height:56px;
+      border-bottom-width:1px;
+      border-bottom-style:solid;
+      border-bottom-color: var(--divider-color);
       margin-left:24px;
     }
     
@@ -67,6 +83,9 @@ Example:
       color: #000;
       opacity: 0.54;
       height:56px;
+      border-bottom-width:1px;
+      border-bottom-style:solid;
+      border-bottom-color: var(--divider-color);
       margin-right:24px;
     }
     
@@ -76,6 +95,9 @@ Example:
       color: #000;
       opacity: 0.87;
       height:48px;
+      border-bottom-width:1px;
+      border-bottom-style:solid;
+      border-bottom-color: var(--divider-color);
       margin-left:24px;
     }
     
@@ -85,6 +107,9 @@ Example:
       color: #000;
       opacity: 0.87;
       height:48px;
+      border-bottom-width:1px;
+      border-bottom-style:solid;
+      border-bottom-color: var(--divider-color);
       margin-right:24px;
     }
  
@@ -100,12 +125,12 @@ Example:
       on-response="_handleResponse"></iron-ajax>
           
     <paper-material>
-        <div class="vertical">
+        <div class="vertical shadow">
         <template is="dom-if" if="{{hasPlan}}">
-          <div class="horizontal">
-            <div class="flex-4 headerPlan"><span>Plan</span></div>
-            <div class="flex-1 header"><span>Year</span></div>
-            <div class="horizontal flex-7 header">
+          <div class="horizontal header">
+            <div class="flex-4 headerPlan center-layout"><span>Plan</span></div>
+            <div class="flex-1 center-layout"><span>Year</span></div>
+            <div class="horizontal flex-7 center-layout">
               <div class="flex-1">A</div>
               <div class="flex-1">B+</div>
               <div class="flex-1">B</div>
@@ -125,10 +150,10 @@ Example:
         
         <template is="dom-repeat" items="{{plans}}" as="plan">
           <template is="dom-repeat" items="{{plan.years}}" as="year">
-                <div class="horizontal">
-                 <div class="flex-4 contentPlan">{{plan.name}}</div>
-                 <div class="flex-1 content">{{year.year}}</div>
-                  <div class="horizontal flex-7 content">
+                <div class="horizontal content">
+                 <div class="flex-4 contentPlan center-layout">{{plan.name}}</div>
+                 <div class="flex-1 center-layout">{{year.year}}</div>
+                  <div class="horizontal flex-7 center-layout">
                       <div class="flex-1">{{year.grade.A}}</div>
                       <div class="flex-1">{{year.grade.Bp}}</div>
                       <div class="flex-1">{{year.grade.B}}</div>
