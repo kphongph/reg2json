@@ -1,0 +1,38 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+
+<dom-module id="course-panel">
+  <template>
+    <div class="vertical layout">
+      <paper-input label="Course ID" value="{{number}}"></paper-input>
+      <paper-textarea label="Course Description" value="{{descriptionEnglish}}">test</paper-textarea>
+      <paper-textarea label="คำอธิบายรายวิชา" 
+      value="{{descriptionThai}}"</paper-textarea>
+    </div>
+  </template>
+  <script>
+     Polymer({
+      is: 'course-panel',
+      properties: {
+        number:String,
+        descriptionThai:String,
+        descriptionEnglish:String,
+        json:Object
+      },
+      observers: [
+       '_updateContent(number,descriptionEnglish,descriptionThai)'
+      ],
+      _updateContent : function(number, descriptionEnglish, descriptionThai) {
+        var tmp = {
+          number:number,
+          description: {
+            thai:descriptionThai,
+            english:descriptionEnglish
+          }
+        };
+        this.set('json',tmp);
+        console.log(tmp);
+      }
+    });
+  </script>
+</dom-module>
