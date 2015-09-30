@@ -1,37 +1,120 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 
 <dom-module id="course-panel">
+  
   <template>
+    <style>
+      paper-button[raised].colorful {
+        background: #4285f4;
+        color: #fff;
+      }
+    </style>
+    
+    <iron-ajax id="insertAjax"
+      url="/mongo/tqf/course"
+      method="POST"
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleResponse">
+    </iron-ajax>
+    
+     <iron-ajax id="getAjax"
+      method="GET"
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleGetResponse">
+    </iron-ajax>
+    
     <div class="vertical layout">
-      <paper-input label="Course ID" value="{{number}}"></paper-input>
-      <paper-textarea label="Course Description" value="{{descriptionEnglish}}">test</paper-textarea>
-      <paper-textarea label="คำอธิบายรายวิชา" 
-      value="{{descriptionThai}}"</paper-textarea>
+      <div>
+        <paper-input label="ID" value="{{docid}}">
+        </paper-input>
+      </div>
+      <div>
+        <paper-input label="Course ID" value="{{json.number}}">
+        </paper-input>
+      </div>
+      <div>
+        <paper-textarea label="Course Description" value="{{json.description.english}}">
+        </paper-textarea>
+      </div>
+      <div>
+        <paper-textarea label="คำอธิบายรายวิชา" 
+          value="{{json.description.thai}}"</paper-textarea>
+      </div>
+      <div>
+        <paper-button raised class="colorful" on-click="_insert">Insert</paper-button>
+      </div>
     </div>
   </template>
   <script>
      Polymer({
       is: 'course-panel',
       properties: {
-        number:String,
-        descriptionThai:String,
-        descriptionEnglish:String,
-        json:Object
+        //number:String,
+        //descriptionThai:String,
+        //descriptionEnglish:String,
+        docid: {
+          type:String,
+          notify:true,
+          observer:'_docidChanged'
+        },
+        json: {
+          type:Object,
+          notify:true,
+          observer: '_jsonChanged'
+        }
       },
       observers: [
-       '_updateContent(number,descriptionEnglish,descriptionThai)'
+      // '_updateContent(number,descriptionEnglish,descriptionThai)'
       ],
+      ready: function() {
+        //this.set('json',{});
+      },
+      _docidChanged: function(newVal) {
+        //console.log(newVal.length);
+        if(newVal && newVal.length == 24) {
+          this.$.getAjax.url = '/mongo/tqf/course/'+newVal;
+          this.$.getAjax.generateRequest();
+        }
+      },
+      /*
       _updateContent : function(number, descriptionEnglish, descriptionThai) {
-        var tmp = {
-          number:number,
-          description: {
-            thai:descriptionThai,
-            english:descriptionEnglish
-          }
-        };
-        this.set('json',tmp);
-        console.log(tmp);
+        this.set('json.number',number);
+        if(!this.get('json.description')) {
+          this.set('json.description',{});
+        }
+        this.set('json.description.thai',descriptionThai);
+        this.set('json.description.english',descriptionEnglish);
+        console.log(this.json);
+      },
+      */
+      _jsonChanged: function(newVal) {
+        console.log(newVal);
+        if(newVal) {
+          //this.set('number',newVal.number);
+          //this.set('descriptionThai',newVal.description.thai);
+          //this.set('descriptionEnglish',newVal.description.english);
+        }
+      },
+      _insert: function() {
+        console.log('test insert');
+        if(this.json) {
+          console.log(this.json);
+          this.$.insertAjax.body = this.json;
+          //console.log(this.json);
+          this.$.insertAjax.generateRequest();
+        }
+      },
+      _handleResponse: function() {
+        console.log(this.$.insertAjax.lastResponse);
+      },
+      _handleGetResponse: function() {
+        this.set('json',this.$.getAjax.lastResponse);
+        //console.log(this.$.getAjax.lastResponse);
       }
     });
   </script>
