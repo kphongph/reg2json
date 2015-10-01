@@ -15,12 +15,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+
 <!--
 An element providing a solution to no problem in particular.
 
 Example:
 
-    <seed-element></seed-element>
+<seed-element></seed-element>
 
 @group Seed Elements
 @element seed-element
@@ -37,15 +41,9 @@ Example:
       box-sizing: border-box;
     }
     
-    .center {
-      @apply(--layout-center);
-    }
-    
-    .layout {
-      @apply(--layout);
-    }
-    
-    .center-layout{
+
+ 
+  .center-layout{
       @apply(--layout-center);
       @apply(--layout);
     }
@@ -55,73 +53,67 @@ Example:
     .vertical {
       @apply(--layout-vertical);
     }
-    .flex-4 {
-      @apply(--layout-flex-4); 
+    .flex-3 {
+      @apply(--layout-flex-3); 
     }
-    .flex-7 {
-      @apply(--layout-flex-8); 
+    .flex-5 {
+      @apply(--layout-flex-5); 
     }
-    
-    .flex-1 {
-      @apply(--layout-flex-1); 
-    }
-    
-    .flex-2 {
-      @apply(--layout-flex-2); 
+    .flex-10 {
+      @apply(--layout-flex-10); 
     }
     
-    .headerCurriculumNumber {
-      @apply(--paper-font-caption);
-      text-align:left;
-      font-style:bold;
-      color: #000;
-      opacity: 0.54;
-      height:56px;
-      border-bottom-width:1px;
-      border-bottom-style:solid;
-      border-bottom-color: var(--divider-color);
-      margin-left:24px;
-    }
     
     .header {
       @apply(--paper-font-caption);
-      text-align:right;
+      text-align:left;
       color: #000;
-      opacity: 0.54;
+      opacity: 0.64;
       height:56px;
       border-bottom-width:1px;
       border-bottom-style:solid;
       border-bottom-color: var(--divider-color);
-      margin-right:24px;
     }
     
-    .contentCurriculum {
-      @apply(--paper-font-menu);
+    .caption {
+      @apply(--paper-font-title);
       text-align:left;
       color: #000;
       opacity: 0.87;
-      height:48px;
-      border-bottom-width:1px;
-      border-bottom-style:solid;
-      border-bottom-color: var(--divider-color);
+      height:64px;
+    }
+    
+    .test {
+      background-color:#0F0;
+    }
+    
+    .margin-style{
       margin-left:24px;
+    }
+    
+    .left{
+      text-align:left;
+    }
+    
+    .checkbox-cell {
+      padding-left:24px;
+    }
+    
+    .selected {
+      background-color:#F5F5F5;
     }
     
     .content {
       @apply(--paper-font-menu);
-      text-align:right;
+      text-align:left;
       color: #000;
       opacity: 0.87;
       height:48px;
       border-bottom-width:1px;
       border-bottom-style:solid;
       border-bottom-color: var(--divider-color);
-      margin-right:24px;
     }
  
-    .shadow {
-       @apply(--shadow-elevation-2dp);
-    }
 
   </style>
     
@@ -133,25 +125,47 @@ Example:
       on-response="_handleResponse"></iron-ajax>
           
     <paper-material>
+      
+       <div class="vertical shadow">
+        <template is="dom-if" if="{{hasPlan}}">
+          <div class="horizontal layout center-layout">
+            <div class="flex-6 caption margin-style center-layout">Curriculum List</div>
+            
+            <div class="flex-3 horizontal layout end-justified">
+              <template is="dom-if" if="{{_isRowSelected}}">
+                <div><paper-icon-button icon="icons:delete"></paper-icon-button></div>  
+              </template>
+            </div>
+
+          </div>
+      
         <div class="vertical shadow">
-     
           <div class="horizontal header">
-            <div class="flex-2 headerCurriculumNumber center-layout"><span>Code</span></div>
+            <div class="flex-1">
+              
+            </div>
+            
+            <div class="flex-2 center-layout margin-style"><span>Code</span></div>
             <div class="flex-7 center-layout"><span>Name</span></div>
             <div class="horizontal flex-4 center-layout"><span>Owner</span></div>
           </div>
-        </div>
-   
-       
-        <template is="dom-repeat" items="{{json}}" as="json">
-        
-                <div class="horizontal content">
-                 <div class="flex-2 contentCurriculum center-layout">{{json.number}}</div>
-                 <div class="flex-7 center-layout">{{json.name.thai}}</div>
-                  <div class="horizontal flex-7 center-layout">{{json.owner.department}}</div>
-                </div>
-        
         </template>
+        
+          <template is="dom-repeat" items="{{json}}" as="json">
+           <div class$="{{_isSelected(json.selected)}}">
+             
+                 <div class="flex-1 content center-layout checkbox-cell">
+                    <paper-checkbox checked="{{json.selected}}"></paper-checkbox>
+                  </div>
+                  
+              
+              <div class="flex-2 center-layout left">{{json.number}}</div>
+              <div class="flex-7 center-layout">{{json.name.thai}}</div>
+              <div class="horizontal flex-4 center-layout">{{json.owner.department}}</div>
+             
+            </div>
+          </template>
+        </div>
     </paper-material>
     <paper-spinner active="{{loading}}"></paper-spinner>
   </template>
@@ -162,14 +176,20 @@ Example:
       is: 'curriculum-report',
       properties: {
         json: {
-          type:Object,
-          notify:true,
+          type:Array,
+          value: function() {
+            return [];
+          },
           observer: '_jsonChanged'
         },
         loading: {
           type: Boolean,
           value: false,
           notify: true
+        },
+        hasPlan : {
+            type:Boolean,
+            value:true
         }
 
       },
@@ -181,20 +201,38 @@ Example:
         this.$.getQuery.url = "/mongo/tqf/curriculum/";
         this.$.getQuery.generateRequest();
       },
-      _jsonChanged: function(newVal) {
-        console.log(newVal);
-        if(newVal) {
-          //this.set('number',newVal.number);
-          //this.set('descriptionThai',newVal.description.thai);
-          //this.set('descriptionEnglish',newVal.description.english);
+      _jsonChanged: function(changeRecord) {
+        var jsonList = changeRecord.base;
+        
+        /*for(var i=0;i<jsonList.length;i++) {
+          if(jsonList[i].selected) {
+           // tmp = true;
+           console.log(i+"="+jsonList[i].selected);
+            break;
+          }
+        }*/
+       /* var tmp = false;
+        for(var i=0;i<jsonList.length;i++) {
+          if(jsonList[i].selected) {
+            tmp = true;
+            break;
+          }
         }
+        this._isRowSelected = tmp;*/
       },
     _handleResponse: function() {
 
       this.set('json',this.$.getQuery.lastResponse);
       this.loading = false;
       
-    }    
+    } ,
+    _isSelected : function(selected) {
+        if(selected) {
+          return "horizontal content selected"
+        } else {
+          return "horizontal content"
+        }
+      }
 
   });
 
