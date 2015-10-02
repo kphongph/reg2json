@@ -1,0 +1,289 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+
+<link  rel="import" href="search-bar.html">
+
+
+<dom-module id="course-table">
+  <template>
+   
+      <style>
+    :host {
+      display: block;
+      box-sizing: border-box;
+    }
+    
+    
+    .center-layout{
+      @apply(--layout-center);
+      @apply(--layout);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .flex-3 {
+      @apply(--layout-flex-3); 
+    }
+    .flex-5 {
+      @apply(--layout-flex-5); 
+    }
+    .flex-10 {
+      @apply(--layout-flex-10); 
+    }
+    
+    
+    .header {
+      @apply(--paper-font-caption);
+      text-align:left;
+      color: #000;
+      opacity: 0.64;
+      height:56px;
+      border-bottom-width:1px;
+      border-bottom-style:solid;
+      border-bottom-color: var(--divider-color);
+    }
+    
+    .caption {
+      @apply(--paper-font-title);
+      text-align:left;
+      color: #000;
+      opacity: 0.87;
+      height:64px;
+    }
+    
+    .test {
+      background-color:#0F0;
+    }
+    
+    .margin-style{
+      margin-left:24px;
+    }
+    
+    .checkbox-cell {
+      padding-left:24px;
+    }
+    
+    .selected {
+      background-color:#F5F5F5;
+    }
+    
+    .content {
+      @apply(--paper-font-menu);
+      text-align:left;
+      color: #000;
+      opacity: 0.87;
+      height:48px;
+      border-bottom-width:1px;
+      border-bottom-style:solid;
+      border-bottom-color: var(--divider-color);
+    }
+ 
+    .shadow {
+       @apply(--shadow-elevation-2dp);
+    }
+
+  </style>
+  
+  <iron-ajax 
+      id="getQuery"            
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleResponse">
+  </iron-ajax>
+      
+  <iron-ajax id="deleteAjax"
+      method="DELETE"
+      handle-as="json"
+      on-response="_handleDeleteResponse">
+    </iron-ajax>
+    
+      <paper-material>
+        <div class="vertical shadow">
+        <template is="dom-if" if="{{hasPlan}}">
+          <div class="horizontal layout center-layout">
+            <div class="flex-3 caption margin-style center-layout">Course List</div>
+            
+            <div class="flex-6 horizontal layout end-justified center-layout">
+              <!--
+              <div class="flex self-stretch">
+                <paper-input no-label-float label="Course Number" hidden="{{!_searchActive}}"></paper-input>
+              </div>
+              <div><paper-icon-button icon="icons:search" on-click="_search"></paper-icon-button></div>
+              -->
+              <search-bar search-input="{{_searchInput}}"></search-bar>
+              <template is="dom-if" if="{{_isRowSelected}}">
+                <template is="dom-if" if="{{_isSingleRowSelected}}">
+                  <div><paper-icon-button icon="icons:create"  on-click="_selectOne"></paper-icon-button></div>  
+                </template>
+                <div><paper-icon-button icon="icons:delete"  on-click="_delete"></paper-icon-button></div>  
+              </template>
+            </div>
+            
+            
+          </div>
+          <div class="horizontal header">
+            <div class="flex-1"></div>
+            <div class="flex-3 header center-layout margin-style"><span>Number</span></div>
+            <div class="horizontal flex-10 header center-layout">
+              <div class="flex-5">Endlish</div>
+              <div class="flex-5">Thai</div>
+            </div>
+          </div>
+        </div>
+        </template>
+        
+        <template is="dom-repeat" items="{{json}}" as="json">
+            <div class$="{{_isSelected(json.selected)}}">
+                  <div class="flex-1 content center-layout checkbox-cell">
+                    <paper-checkbox checked="{{json.selected}}"></paper-checkbox>
+                  </div>
+                 <div class="flex-3 content center-layout margin-style">{{json.number}}</div>
+                  <div class="horizontal flex-10 content center-layout">
+                      <div class="flex-5">{{json.name.english}}</div>
+                      <div class="flex-5">{{json.name.thai}}</div>
+                  </div>
+                </div>
+          </template>  
+        </div>
+      </template>
+    </paper-material>
+  </template>
+  <script>
+    Polymer({
+      is: 'course-table',
+      properties : {
+        hasPlan : {
+            type:Boolean,
+            value:true
+        },
+        json : {
+          type:Array,
+          value: function() {
+            return [];
+          }
+        },
+        selectedItem : {
+          type:Object,
+          notify:true
+        },
+        selectedList : {
+          type:Array,
+          notify:true
+        },
+        _searchInput : {
+          type:String,
+          notify:true,
+          observer: '_searchInputChanged'
+        }
+      },
+      observers: [
+        '_jsonChanged(json.*)'
+      ],
+      ready: function() {   
+        this._searchActive = false;
+        this._isRowSelected = false;
+        this.set('selectedList',[]);
+        this.$.getQuery.url = "/mongo/tqf/course?limit=10";
+        this.$.getQuery.generateRequest();
+      },
+      _isSelected : function(selected) {
+        if(selected) {
+          return "horizontal content selected"
+        } else {
+          return "horizontal content"
+        }
+      },
+      _jsonChanged: function(changeRecord) {
+        // keep record of selected
+        var path_array = changeRecord.path.split('.');
+        if(path_array[2]=="selected") {
+          var selectedObj = changeRecord.base[parseInt(path_array[1])];
+          if(selectedObj.selected) {
+            this.push('selectedList',selectedObj);
+          } else {
+            if(this.selectedList) {
+              for(var i=0;i<this.selectedList.length;i++) {
+                if(this.selectedList[i]._id == selectedObj._id) {
+                  this.splice('selectedList',i,1);
+                  break;
+                }
+              }    
+            }
+          }
+        }
+        if(this.selectedList) {
+          this._isRowSelected = this.selectedList.length > 0;
+          if(this.selectedList.length == 1) {
+            this._isSingleRowSelected = true;
+          } else {
+            this._isSingleRowSelected = false;
+          }
+        }
+        console.log(this.selectedList);
+      },
+      _selectOne : function() {
+        this.set('selectedItem',this.selectedList[0]);
+      },
+      _delete: function() {
+        //console.log('test delete');
+        
+        var isMoreToDelete = function(json) {
+          for(var i=0;i<json.length;i++) {
+            if(json[i].selected) {
+              return true;
+            }
+          }
+          return false;
+        };
+        
+        while(isMoreToDelete(this.json)) {
+          var tmp_list = [];
+          for(var i=0;i<this.json.length;i++) {
+            if(this.json[i].selected) {
+              this.$.deleteAjax.url = '/mongo/tqf/course/'+this.json[i]._id;
+              console.log('delete :'+this.$.deleteAjax.url);
+              this.splice('json',i,1);
+              this.$.deleteAjax.generateRequest();
+              break;
+            }
+          }
+        }
+      },
+      _handleDeleteResponse: function() {
+        //console.log(this.$.deleteAjax.lastResponse);
+        //this.$.getQuery.generateRequest();   
+      },
+      _handleResponse: function() {
+        console.log(this.$.getQuery.lastResponse);
+        this.set('json',this.$.getQuery.lastResponse);
+      },
+      _search : function() {
+        if(this._searchActive) {
+          this._searchActive = false;
+        } else {
+          this._searchActive = true;
+        }
+      },
+      _searchInputChanged : function() {
+        var query = {};
+        if(this._searchInput) {        
+          query = {'number':{'$regex':'^'+this._searchInput}};
+        } 
+        var url = "/mongo/tqf/course?limit=10";
+        url = url + '&query='+JSON.stringify(query);
+        this.$.getQuery.url = url;
+        this.$.getQuery.generateRequest();
+      }
+    });
+  </script>
+</dom-module>

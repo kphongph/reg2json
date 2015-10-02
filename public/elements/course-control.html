@@ -1,0 +1,37 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="course-panel.html">
+<link rel="import" href="course-table.html">
+<link rel="import" href="search-bar.html">
+
+<dom-module id="course-control">
+  <template>
+    <course-panel json="{{selectedItem}}"></course-panel>
+    <course-table selected-item="{{selectedItem}}"></course-table>
+    <div>{{selectedList.length}}</div>
+  </template>
+  <script>
+     Polymer({
+      is: 'course-control',
+      properties : {
+        selectedList: {
+          type:Array,
+          notify:true
+        },
+        selectedItem : {
+          type: Object
+        }
+      },
+      observers: [
+        '_selectedListChanged(selectedList.*)'
+      ],
+      ready: function() {
+        console.log('ready');
+      },
+      _selectedListChanged: function(changeRecord) {
+        console.log(changeRecord);
+        this.set('selectedItem',changeRecord.base[0]);
+      }
+     });
+      
+  </script>
+</dom-module>

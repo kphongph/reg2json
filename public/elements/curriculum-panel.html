@@ -3,7 +3,7 @@
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 
-<dom-module id="course-panel">
+<dom-module id="curriculum-panel">
   
   <template>
     <style>
@@ -14,7 +14,7 @@
     </style>
     
     <iron-ajax id="insertAjax"
-      url="/mongo/tqf/course"
+      url="/mongo/tqf/curriculum"
       method="POST"
       handle-as="json"
       content-type="application/json"
@@ -29,26 +29,55 @@
     </iron-ajax>
     
     <div class="vertical layout">
-      <div class="horizontal layout">
-        <div class="flex-2">
-          <paper-input label="Course ID" value="{{json.number}}"></paper-input>
-        </div>
-        <div class="flex-4">
-          <paper-input label="Name" value="{{json.name.english}}"></paper-input>
-        </div>
-        <div class="flex-4">
-          <paper-input label="ชื่อวิชา" value="{{json.name.thai}}"></paper-input>
-        </div>
+      <div>
+        <paper-input label="ID" value="{{docid}}">
+        </paper-input>
+      </div>
+      <div>
+        <paper-input label="Curriculum Number" value="{{json.number}}">
+        </paper-input>
+      </div>
+      <div>
+        <paper-textarea label="ชื่อหลักสูตรภาษาไทย" value="{{json.name.thai}}">
+        </paper-textarea>
       </div>
       
       <div>
-        <paper-textarea label="Course Description" value="{{json.description.english}}">
+        <paper-textarea label="ชื่อหลักสูตรภาษาอังกฤษ" value="{{json.name.english}}">
         </paper-textarea>
       </div>
+      
       <div>
-        <paper-textarea label="คำอธิบายรายวิชา" 
-          value="{{json.description.thai}}"</paper-textarea>
+        <paper-textarea label="ชื่อปริญญาภาษาไทย" value="{{json.degree.full.thai}}">
+        </paper-textarea>
       </div>
+      
+      <div>
+        <paper-textarea label="ชื่อปริญญาภาษาอังกฤษ" value="{{json.degree.full.english}}">
+        </paper-textarea>
+      </div>
+      
+      <div>
+        <paper-textarea label="ชื่อย่อปริญญาหลักสูตรภาษาไทย" value="{{json.degree.abbreviation.thai}}">
+        </paper-textarea>
+      </div>
+      
+      <div>
+        <paper-textarea label="ชื่อย่อปริญญาหลักสูตรภาษาอังกฤษ" value="{{json.degree.abbreviation.english}}">
+        </paper-textarea>
+      </div>
+      
+      <div>
+        <paper-textarea label="คณะ" value="{{json.owner.faculty}}">
+        </paper-textarea>
+      </div>
+      
+      <div>
+        <paper-textarea label="ภาควิชา" value="{{json.owner.department}}">
+        </paper-textarea>
+      </div>
+      
+      
       <div>
         <paper-button raised class="colorful" on-click="_insert">Insert</paper-button>
       </div>
@@ -56,7 +85,7 @@
   </template>
   <script>
      Polymer({
-      is: 'course-panel',
+      is: 'curriculum-panel',
       properties: {
         //number:String,
         //descriptionThai:String,
@@ -76,14 +105,14 @@
       // '_updateContent(number,descriptionEnglish,descriptionThai)'
       ],
       ready: function() {
-        this.set('json',{'number':'','name':{},'description':{}});
+        //this.set('json',{});
       },
       _docidChanged: function(newVal) {
         //console.log(newVal.length);
-        if(newVal && newVal.length == 24) {
+       /* if(newVal && newVal.length == 24) {
           this.$.getAjax.url = '/mongo/tqf/course/'+newVal;
           this.$.getAjax.generateRequest();
-        }
+        }*/
       },
       /*
       _updateContent : function(number, descriptionEnglish, descriptionThai) {
@@ -105,7 +134,10 @@
         }
       },
       _insert: function() {
-        console.log('test insert');
+          alert("55");
+          
+        console.log('test insert'+this.json);
+      
         if(this.json) {
           console.log(this.json);
           this.$.insertAjax.body = this.json;

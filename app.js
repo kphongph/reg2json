@@ -1,9 +1,12 @@
 var express = require('express');
+var bodyParser = require('body-parser');
 var htmlToJson = require('html-to-json');
+var config = require('./config');
 var util = require('./util');
-
 var app = express();
 
+
+app.use(bodyParser.json());
 app.use(express.static('public'));
 
 app.get('/course/:year/:semester', function (req, res) {
@@ -52,6 +55,10 @@ app.get('/course/:year/:semester/:course', function (req, res) {
 	res.json(result);
   });
 });
+
+
+require('./lib/rest')(app, config.mongorest);
+
 
 var server = app.listen(process.env.PORT, function () {
   var host = process.env.IP;

@@ -74,7 +74,6 @@ Example:
       border-bottom-width:1px;
       border-bottom-style:solid;
       border-bottom-color: var(--divider-color);
-      margin-left:24px;
     }
     
     .header {
@@ -86,7 +85,6 @@ Example:
       border-bottom-width:1px;
       border-bottom-style:solid;
       border-bottom-color: var(--divider-color);
-      margin-right:24px;
     }
     
     .contentPlan {
@@ -98,7 +96,6 @@ Example:
       border-bottom-width:1px;
       border-bottom-style:solid;
       border-bottom-color: var(--divider-color);
-      margin-left:24px;
     }
     
     .content {
@@ -110,9 +107,16 @@ Example:
       border-bottom-width:1px;
       border-bottom-style:solid;
       border-bottom-color: var(--divider-color);
+    }
+    
+    .margin-left-style{
+      margin-left:24px;
+    }
+    
+    .margin-right-style{
       margin-right:24px;
     }
- 
+    
     .shadow {
        @apply(--shadow-elevation-2dp);
     }
@@ -128,9 +132,9 @@ Example:
         <div class="vertical shadow">
         <template is="dom-if" if="{{hasPlan}}">
           <div class="horizontal header">
-            <div class="flex-4 headerPlan center-layout"><span>Plan</span></div>
+            <div class="flex-4 headerPlan center-layout margin-left-style"><span>Plan</span></div>
             <div class="flex-1 center-layout"><span>Year</span></div>
-            <div class="horizontal flex-7 center-layout">
+            <div class="horizontal flex-7 center-layout  margin-right-style">
               <div class="flex-1">A</div>
               <div class="flex-1">B+</div>
               <div class="flex-1">B</div>
@@ -151,9 +155,9 @@ Example:
         <template is="dom-repeat" items="{{plans}}" as="plan">
           <template is="dom-repeat" items="{{plan.years}}" as="year">
                 <div class="horizontal content">
-                 <div class="flex-4 contentPlan center-layout">{{plan.name}}</div>
+                 <div class="flex-4 contentPlan center-layout margin-left-style">{{plan.name}}</div>
                  <div class="flex-1 center-layout">{{year.year}}</div>
-                  <div class="horizontal flex-7 center-layout">
+                  <div class="horizontal flex-7 center-layout margin-right-style">
                       <div class="flex-1">{{year.grade.A}}</div>
                       <div class="flex-1">{{year.grade.Bp}}</div>
                       <div class="flex-1">{{year.grade.B}}</div>

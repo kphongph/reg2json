@@ -11,9 +11,12 @@
     "url": "git+https://github.com/kphongph/reg2json.git"
   },
   "dependencies": {
+    "body-parser": "^1.14.1",
     "express": "*",
+    "extend": "^3.0.0",
     "html-to-json": "^0.5.1",
-    "iconv-lite": "^0.4.11"
+    "iconv-lite": "^0.4.11",
+    "mongodb": "^2.0.44"
   },
   "author": "",
   "license": "ISC",

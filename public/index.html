@@ -15,12 +15,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <title>seed-element Demo</title>
     <script src="./bower_components/webcomponentsjs/webcomponents-lite.js"></script>
     <link rel="import" href="./elements/grade-report-panel.html">   
-    <link rel="import" href="./elements/course-panel.html">
+     <link rel="import" href="./elements/curriculum-report.html">
+     <link rel="import" href="./elements/curriculum-panel.html">
+      <link rel="import" href="./elements/course-control.html">
   </head>
   <body unresolved>    
     <!--
-    <grade-report-panel></grade-report-panel>
+    
     -->
-    <course-panel></course-panel>
+    <div style="width:600px;">
+      <course-control></course-control>
+    </div>
+    <grade-report-panel></grade-report-panel>
+   
+    
+    <div style="width:900px;">
+      <hr/>
+     
+      <span style="color:red; font-style:bold;">Curriculum list</span>
+      <br/> <br/>
+    <curriculum-report></curriculum-report>
+    </div>
+    
+    <div style="width:900px;">
+      <hr/>
+      <span style="color:red; font-style:bold;">Curriculum Form</span>
+      <br/> <br/>
+    <curriculum-panel json='{"number":"","name":{"thai":"","english":""},"degree":{"full":{"thai":"","english":""},"abbreviation":{"thai":"","english":""}},"owner":{"faculty":"","department":""}}' ></curriculum-panel>
+    </div>
   </body>
 </html>
