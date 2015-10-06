@@ -1,0 +1,106 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="grade-ajax">
+  <template>
+    <iron-ajax
+      id="regQuery"
+      handle-as="json"
+      on-response="_handleRegResponse"
+      method="GET">
+    </iron-ajax>
+    
+    <iron-ajax id="insertAjax"
+      url="/mongo/tqf/grade"
+      method="POST"
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleInsertResponse">
+    </iron-ajax>
+    
+    <iron-ajax id="mongoQuery"
+      url="/mongo/tqf/grade"
+      method="GET"
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleMongoQueryResponse">
+    </iron-ajax>
+    
+    <iron-ajax id="deleteAjax"
+      method="DELETE"
+      handle-as="json"
+      on-response="_handleDeleteResponse">
+    </iron-ajax>
+    
+  </template>
+  
+  <script>
+   Polymer({
+      is: 'grade-ajax',
+      properties : {
+        year: String,
+        semester: String,
+        course:String,
+        force: {
+          type:Boolean,
+          value:false
+        },
+        loading: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        response : {
+          type: Object,
+          notify: true
+        }
+      },
+      observers: [
+      '_updateQuery(year,semester,course)'
+      ],
+      _updateQuery: function(year,semester,course) {      
+        var check_st = year+''+semester+''+course;
+        if((/^\d{11}$/).test(check_st)) {
+          this.loading = true;
+          var querypath = "/course/"+year+"/"+semester+"/"+course;
+          this.$.regQuery.url = querypath;  
+          var query = {'path':querypath};
+          this.$.mongoQuery.url = "/mongo/tqf/grade?query="+JSON.stringify(query);
+          this.$.mongoQuery.generateRequest();
+        }
+      },
+      _handleMongoQueryResponse: function() {
+        var lastResponse = this.$.mongoQuery.lastResponse;
+        if(lastResponse.length==0) {
+          this.$.regQuery.generateRequest();
+        } else {
+          if(!this.force) {
+            this.set('response',lastResponse[0].content);
+          } else {
+            this.$.deleteAjax.url = "/mongo/tqf/grade/"+lastResponse[0]._id;
+            this.$.deleteAjax.generateRequest();
+            this.$.regQuery.generateRequest();
+          }
+        }
+      },
+      _handleRegResponse: function() {
+        var lastResponse = this.$.regQuery.lastResponse;
+        this.set('response',lastResponse);
+        // update mongo content
+        this.$.insertAjax.url = "/mongo/tqf/grade";
+        var obj = {};
+        obj['path'] = this.$.regQuery.url;
+        obj['content'] = lastResponse;
+        console.log(lastResponse);
+        this.$.insertAjax.body = obj;
+        this.$.insertAjax.generateRequest();
+      },
+      _handleInsertResponse : function() {
+        console.log(this.$.insertAjax.lastResponse);
+      },
+      _handleDeleteResponse:function() {
+        console.log(this.$.deleteAjax.lastResponse);
+      }
+   });
+  </script>
+</dom-module>

@@ -14,6 +14,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-styles/paper-styles.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 
+<link rel="import" href="grade-ajax.html">
+
 <!--
 An element providing a solution to no problem in particular.
 
@@ -123,11 +125,10 @@ Example:
 
   </style>
     
-    <iron-ajax 
-      id="getQuery"            
-      handle-as="json"
-      on-response="_handleResponse"></iron-ajax>
-          
+    
+    <grade-ajax year="{{year}}" semester="{{semester}}" course="{{course}}" response="{{response}}">
+    </grade-ajax>
+    
     <paper-material>
         <div class="vertical shadow">
         <template is="dom-if" if="{{hasPlan}}">
@@ -186,6 +187,11 @@ Example:
         year: String,
         semester: String,
         course:String,
+        response: {
+          type:Object,
+          notify:true,
+          observer:'_handleResponse'
+        },
         loading: {
           type: Boolean,
           value: false,
@@ -207,7 +213,7 @@ Example:
     
       ready: function() {      
       },
-    
+    /*
     observers: [
       'updateQuery(year,semester,course)'
     ],
@@ -220,9 +226,11 @@ Example:
         this.$.getQuery.url = "/course/"+year+"/"+semester+"/"+course;
         this.$.getQuery.generateRequest();
       }
-    },    
+    },
+    */
     _handleResponse: function() {
-      var section_list = this.$.getQuery.lastResponse;
+      console.log('handleResponse');
+      var section_list = this.response;
       var plan_dict = {};
       for(var i=0;i<section_list.length;i++) {
         var grade_list = section_list[i].grade_list;

@@ -30,8 +30,7 @@
     
     <div class="vertical layout">
       <div>
-        <paper-input label="ID" value="{{docid}}">
-        </paper-input>
+
       </div>
       <div>
         <paper-input label="Curriculum Number" value="{{json.number}}">
@@ -95,6 +94,16 @@
           notify:true,
           observer:'_docidChanged'
         },
+        
+        electedItem : {
+          type:Object,
+          notify:true
+        },
+        selectedList : {
+          type:Array,
+          notify:true
+        },
+        
         json: {
           type:Object,
           notify:true,

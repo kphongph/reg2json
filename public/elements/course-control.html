@@ -5,9 +5,12 @@
 
 <dom-module id="course-control">
   <template>
-    <course-panel json="{{selectedItem}}"></course-panel>
-    <course-table selected-item="{{selectedItem}}"></course-table>
-    <div>{{selectedList.length}}</div>
+    <div class="vertical layout">
+      <div>Selected : <span>{{selectedList.length}}</span></div>
+      <div>
+        <course-table selected-item="{{selectedItem}}" selected-list="{{selectedList}}"></course-table>
+      </div>
+    </div>
   </template>
   <script>
      Polymer({

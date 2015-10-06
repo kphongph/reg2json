@@ -100,37 +100,37 @@
       content-type="application/json"
       on-response="_handleResponse">
   </iron-ajax>
+  
+   <iron-ajax 
+      id="countAjax"            
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleCountResponse">
+  </iron-ajax>
       
   <iron-ajax id="deleteAjax"
       method="DELETE"
       handle-as="json"
       on-response="_handleDeleteResponse">
     </iron-ajax>
-    
-      <paper-material>
-        <div class="vertical shadow">
-        <template is="dom-if" if="{{hasPlan}}">
-          <div class="horizontal layout center-layout">
-            <div class="flex-3 caption margin-style center-layout">Course List</div>
-            
-            <div class="flex-6 horizontal layout end-justified center-layout">
-              <!--
-              <div class="flex self-stretch">
-                <paper-input no-label-float label="Course Number" hidden="{{!_searchActive}}"></paper-input>
-              </div>
-              <div><paper-icon-button icon="icons:search" on-click="_search"></paper-icon-button></div>
-              -->
-              <search-bar search-input="{{_searchInput}}"></search-bar>
-              <template is="dom-if" if="{{_isRowSelected}}">
-                <template is="dom-if" if="{{_isSingleRowSelected}}">
-                  <div><paper-icon-button icon="icons:create"  on-click="_selectOne"></paper-icon-button></div>  
-                </template>
-                <div><paper-icon-button icon="icons:delete"  on-click="_delete"></paper-icon-button></div>  
+    <paper-material>
+      
+      <div class="vertical shadow">
+        <div class="horizontal layout center-layout">
+          <div class="flex-3 caption margin-style center-layout">Course List (<span>{{_total.count}}</span>)</div>
+          <div class="flex-6 horizontal layout end-justified center-layout">
+            <search-bar search-input="{{_searchInput}}"></search-bar>
+            <div><paper-icon-button icon="icons:add" on-click="_addEntry"></paper-icon-button></div>
+            <template is="dom-if" if="{{_isRowSelected}}">
+              <template is="dom-if" if="{{_isSingleRowSelected}}">
+                <div><paper-icon-button icon="icons:create" on-click="_selectOne"></paper-icon-button></div>  
               </template>
-            </div>
-            
-            
+              <div><paper-icon-button icon="icons:delete"  on-click="_delete"></paper-icon-button></div>  
+            </template>
           </div>
+        </div>
+        
+        <div hidden="{{_editPage}}">
           <div class="horizontal header">
             <div class="flex-1"></div>
             <div class="flex-3 header center-layout margin-style"><span>Number</span></div>
@@ -139,33 +139,32 @@
               <div class="flex-5">Thai</div>
             </div>
           </div>
-        </div>
-        </template>
-        
-        <template is="dom-repeat" items="{{json}}" as="json">
+      
+          <template is="dom-repeat" items="{{json}}" as="json">
             <div class$="{{_isSelected(json.selected)}}">
-                  <div class="flex-1 content center-layout checkbox-cell">
-                    <paper-checkbox checked="{{json.selected}}"></paper-checkbox>
-                  </div>
-                 <div class="flex-3 content center-layout margin-style">{{json.number}}</div>
-                  <div class="horizontal flex-10 content center-layout">
-                      <div class="flex-5">{{json.name.english}}</div>
-                      <div class="flex-5">{{json.name.thai}}</div>
-                  </div>
-                </div>
+              <div class="flex-1 content center-layout checkbox-cell">
+                <paper-checkbox checked="{{json.selected}}"></paper-checkbox>
+              </div>
+              <div class="flex-3 content center-layout">{{json.number}}</div>
+              <div class="horizontal flex-10 content center-layout">
+                <div class="flex-5">{{json.name.english}}</div>
+                <div class="flex-5">{{json.name.thai}}</div>
+              </div>
+            </div>
           </template>  
+        </div>  
+        
+        <div hidden="{{!_editPage}}">
+          <course-panel json="{{selectedItem}}"  on-inserted="_log"></course-panel>
         </div>
-      </template>
+        
+      </div>
     </paper-material>
   </template>
   <script>
     Polymer({
       is: 'course-table',
       properties : {
-        hasPlan : {
-            type:Boolean,
-            value:true
-        },
         json : {
           type:Array,
           value: function() {
@@ -192,7 +191,9 @@
       ready: function() {   
         this._searchActive = false;
         this._isRowSelected = false;
+        this._editPage = false;
         this.set('selectedList',[]);
+        this._count();
         this.$.getQuery.url = "/mongo/tqf/course?limit=10";
         this.$.getQuery.generateRequest();
       },
@@ -205,6 +206,7 @@
       },
       _jsonChanged: function(changeRecord) {
         // keep record of selected
+        console.log(changeRecord); // json.#.selected e.g. json.3.selected
         var path_array = changeRecord.path.split('.');
         if(path_array[2]=="selected") {
           var selectedObj = changeRecord.base[parseInt(path_array[1])];
@@ -221,6 +223,7 @@
             }
           }
         }
+        
         if(this.selectedList) {
           this._isRowSelected = this.selectedList.length > 0;
           if(this.selectedList.length == 1) {
@@ -233,6 +236,15 @@
       },
       _selectOne : function() {
         this.set('selectedItem',this.selectedList[0]);
+        if(this._editPage) {
+          this._editPage = false;
+        } else {
+          this._editPage = true;
+        }
+      },
+      _count: function() {
+        this.$.countAjax.url = '/mongo/tqf/course?count=1';
+        this.$.countAjax.generateRequest();
       },
       _delete: function() {
         //console.log('test delete');
@@ -261,17 +273,34 @@
       },
       _handleDeleteResponse: function() {
         //console.log(this.$.deleteAjax.lastResponse);
+        //this.$.getQuery.generateRequest();
+        this.$.countAjax.url = '/mongo/tqf/course?count=1';
+        this.$.countAjax.generateRequest();
+      },
+      _handleCountResponse: function() {
+        this._total = this.$.countAjax.lastResponse;
         //this.$.getQuery.generateRequest();   
       },
       _handleResponse: function() {
-        console.log(this.$.getQuery.lastResponse);
+        //console.log(this.$.getQuery.lastResponse);
         this.set('json',this.$.getQuery.lastResponse);
+        this.set('selectedList',[]);
+        this.set('selectedItem',{});
       },
       _search : function() {
         if(this._searchActive) {
           this._searchActive = false;
         } else {
           this._searchActive = true;
+        }
+      },
+      _addEntry : function() {
+        this.selectedItem = {'number':'','name':{},'description':{'thai':'','english':''}};
+        //this.selectedItem = {};
+        if(this._editPage) {
+          this._editPage = false;
+        } else {
+          this._editPage = true;
         }
       },
       _searchInputChanged : function() {
@@ -281,8 +310,17 @@
         } 
         var url = "/mongo/tqf/course?limit=10";
         url = url + '&query='+JSON.stringify(query);
+        //this.splice('selectedList',0,this.selectedList.length);
         this.$.getQuery.url = url;
         this.$.getQuery.generateRequest();
+      },
+      _log:function(e){
+        if(e.detail.ok) {
+          this._count();
+          this.$.getQuery.url = "/mongo/tqf/course?limit=10";
+          this.$.getQuery.generateRequest();
+          this._editPage = false;
+        }
       }
     });
   </script>

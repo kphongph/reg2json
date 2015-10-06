@@ -1,0 +1,123 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+ <link rel="import" href="curriculum-report.html">
+ <link rel="import" href="course-table.html">
+<link rel="import" href="mongo-document.html">
+ 
+ <dom-module id="curriculum-mapping">
+     
+  <template>
+    
+    <style>
+    :host {
+      display: block;
+      box-sizing: border-box;
+    }
+     </style>
+     
+      <iron-ajax 
+      id="getQuery"            
+      handle-as="json"
+      method="GET"
+      content-type="application/json"
+      on-response="_handleResponse"></iron-ajax>
+     
+     <curriculum-report selected-item="{{curriculum}}"></curriculum-report>
+     
+     <div>{{curriculum.name.thai}}</div>
+     <div>{{courseList.length}}</div>
+     <hr/>
+     
+     
+     
+     <div class="vertical shadow">
+       
+      <template is="dom-repeat" items="{{json}}" as="json">
+        <mongo-document url="/mongo/tqf/course" doc-id="{{json.course_id}}">
+          <template>
+            <span>{{doc.number}}</span>-<span>{{doc.name.thai}}</span>
+          </template>
+        </mongo-document>
+      </template>
+      </div>   
+      <hr/>
+      
+     <template is="dom-repeat" items="{{courseList}}">
+       <span>{{item.name.thai}}</span>
+     </template>
+     
+      <div>
+         <paper-spinner active="{{loading}}"></paper-spinner>
+        
+      </div>
+     
+     
+     <course-table selected-list="{{courseList}}"></course-table>
+     
+     
+    </template>
+
+  <script>
+  Polymer({
+      is: 'curriculum-mapping',
+      properties : {
+        curriculum : {
+          type:Object,
+          notify:true,
+          observer:'_curriculumChanged'
+        }
+        ,
+        selectedCurriculumId : {
+          type:String,
+          notify:true,
+          observer:'_curriculumIdChanged'
+        },
+        selectedCourseList : {
+          type:Array,
+          notify:true
+        }
+      },
+       json: {
+          type:Object,
+           observer:'_jsonChanged'
+        },
+      loading: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+      _curriculumChanged : function() {
+       //  this.set('curriculum');
+        //console.log(curriculum.);
+         console.log(this.curriculum._id);
+         this.set('selectedCurriculumId',this.curriculum._id);
+         
+        //this.selectedCurriculumId=this.curriculum._id;
+        //selectedCurriculumItem
+      },
+     _curriculumIdChanged: function(newVal) {
+        //console.log("count _id ="+newVal.length);
+        if(newVal && newVal.length == 24) {
+          this.$.getQuery.url = '/mongo/tqf/curriculum_course_rel/?query={"curriculum_id":"'+newVal+'"}';
+          this.$.getQuery.generateRequest();
+          this.loading = true;
+        }
+        
+      },
+     _handleResponse: function() {
+      this.set('json',this.$.getQuery.lastResponse);
+     /* this.set('selectedList',[]);
+      this.set('selectedItem',{});*/
+      this.loading = false;
+      
+     } ,
+     _jsonChanged : function(newVal) {
+         //console.log(" "+newVal);
+         //console.log(newVal.length);
+         alert(newVal);
+      }
+  });
+  </script>
+ 
+ </dom-module>

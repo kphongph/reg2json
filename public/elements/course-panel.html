@@ -1,7 +1,9 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 
 <dom-module id="course-panel">
   
@@ -10,6 +12,34 @@
       paper-button[raised].colorful {
         background: #4285f4;
         color: #fff;
+      }
+      .caption {
+         @apply(--paper-font-title);
+         text-align:left;
+         color: #000;
+         opacity: 0.87;
+         height:64px;
+      }
+      .margin-left-style{
+        margin-left:24px;
+      }
+      .margin-right-style{
+        margin-right:24px;
+      }
+      .margin-buttom-style{
+        margin-bottom:10px;
+        margin-top:10px;
+      }
+     .center-layout{
+       @apply(--layout-center);
+       @apply(--layout);
+      }
+      .shadow {
+        @apply(--shadow-elevation-2dp);
+      }
+      
+      .fonts{
+        @apply(--paper-font-menu);
       }
     </style>
     
@@ -28,31 +58,49 @@
       on-response="_handleGetResponse">
     </iron-ajax>
     
-    <div class="vertical layout">
-      <div class="horizontal layout">
-        <div class="flex-2">
-          <paper-input label="Course ID" value="{{json.number}}"></paper-input>
+     <iron-ajax id="updateAjax"
+      method="PUT"
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleUpdateResponse">
+    </iron-ajax>
+    
+    <iron-ajax 
+      id="countAjax"            
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleCountResponse">
+  </iron-ajax>
+  
+    <div class="vertical">
+      <div class="vertical layout">
+        <div class="horizontal layout">
+          <div class="flex-2 margin-left-style">
+            <paper-input label="Course ID" value="{{json.number}}"></paper-input>
+          </div>
+          <div class="flex-4">
+            <paper-input label="Name" value="{{json.name.english}}"></paper-input>
+          </div>
+          <div class="flex-4 margin-right-style">
+            <paper-input label="ชื่อวิชา" value="{{json.name.thai}}"></paper-input>
+          </div>
         </div>
-        <div class="flex-4">
-          <paper-input label="Name" value="{{json.name.english}}"></paper-input>
-        </div>
-        <div class="flex-4">
-          <paper-input label="ชื่อวิชา" value="{{json.name.thai}}"></paper-input>
-        </div>
-      </div>
       
-      <div>
-        <paper-textarea label="Course Description" value="{{json.description.english}}">
-        </paper-textarea>
+        <div class="margin-left-style margin-right-style">
+          <paper-textarea label="Course Description" value="{{json.description.english}}">
+          </paper-textarea>
+        </div>
+        <div class="margin-left-style margin-right-style">
+          <paper-textarea label="คำอธิบายรายวิชา" 
+          value="{{json.description.thai}}"></paper-textarea>
+        </div>
+        <div  class="margin-left-style margin-buttom-style">
+          <paper-button raised class="colorful fonts" on-click="_insert" hidden="{{json._id}}">Insert</paper-button>
+          <paper-button raised class="colorful fonts" on-click="_update" hidden="{{!json._id}}">Update</paper-button>
+          <paper-toast id="toast1" text="Insert Success."></paper-toast>
+          <paper-toast id="toast2" text="Update Success."></paper-toast>
+        </div>
       </div>
-      <div>
-        <paper-textarea label="คำอธิบายรายวิชา" 
-          value="{{json.description.thai}}"</paper-textarea>
-      </div>
-      <div>
-        <paper-button raised class="colorful" on-click="_insert">Insert</paper-button>
-      </div>
-    </div>
   </template>
   <script>
      Polymer({
@@ -96,13 +144,7 @@
         console.log(this.json);
       },
       */
-      _jsonChanged: function(newVal) {
-        console.log(newVal);
-        if(newVal) {
-          //this.set('number',newVal.number);
-          //this.set('descriptionThai',newVal.description.thai);
-          //this.set('descriptionEnglish',newVal.description.english);
-        }
+      _jsonChanged: function() {
       },
       _insert: function() {
         console.log('test insert');
@@ -111,15 +153,35 @@
           this.$.insertAjax.body = this.json;
           //console.log(this.json);
           this.$.insertAjax.generateRequest();
+          this.$.toast1.show();
+        }
+      },
+      _update: function() {
+        console.log('test Update');
+        if(this.json) {
+          var tmp = JSON.parse(JSON.stringify(this.json));
+          delete tmp['selected'];
+          delete tmp['_id'];
+          this.$.updateAjax.url="/mongo/tqf/course/"+this.json._id;
+          this.$.updateAjax.body = tmp;
+          //console.log(tmp);
+          this.$.updateAjax.generateRequest();
+          this.$.toast2.show();
         }
       },
       _handleResponse: function() {
         console.log(this.$.insertAjax.lastResponse);
+        this.fire('inserted', this.$.insertAjax.lastResponse);
       },
       _handleGetResponse: function() {
         this.set('json',this.$.getAjax.lastResponse);
         //console.log(this.$.getAjax.lastResponse);
-      }
+      },
+      _handleUpdateResponse: function() {
+        //this.set('json',this.$.updateAjax.lastResponse);
+        //console.log(this.$.updateAjax.lastResponse);
+    }
+      
     });
   </script>
 </dom-module>

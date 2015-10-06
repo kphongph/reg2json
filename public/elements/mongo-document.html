@@ -1,0 +1,59 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+
+<dom-module id="mongo-document">
+  
+  <template>
+    
+    <iron-ajax id="mongoQuery"
+      method="GET"
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleResponse">
+    </iron-ajax>
+    <div id="document"></div>
+    <content id="templates" select="template"></content>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'mongo-document',
+      properties: {
+        url : {
+          type:String,
+          notify:true
+        },
+        docId : {
+          type:String,
+          notify:true
+        },
+        doc : {
+          type:Object,
+          notify:true
+        }
+      },
+      observers : [
+        '_generateRequest(url,docId)'
+      ],
+      behaviors: [ Polymer.Templatizer ],
+      _generateRequest : function(url, docId) {
+        this.$.mongoQuery.url = url + '/' +docId;
+        this.$.mongoQuery.generateRequest();
+      },
+      _handleResponse : function() {
+        //this.set('doc',this.$.mongoQuery.lastResponse);
+        var clone = this.stamp({});
+        clone.doc = this.$.mongoQuery.lastResponse;
+        Polymer.dom(this.$.document).appendChild(clone.root);
+        //console.log(clone);
+      },
+      ready: function() {
+        var template = Polymer.dom(this.$.templates).getDistributedNodes()[0];
+        this.templatize(template);
+      }
+
+    });
+  </script>
+
+</dom-module>

@@ -132,9 +132,15 @@ Example:
             <div class="flex-6 caption margin-style center-layout">Curriculum List</div>
             
             <div class="flex-3 horizontal layout end-justified">
-              <template is="dom-if" if="{{_isRowSelected}}">
-                <div><paper-icon-button icon="icons:delete"></paper-icon-button></div>  
+
+ <div><paper-icon-button icon="icons:add" on-click="_addEntry"></paper-icon-button></div>
+            <template is="dom-if" if="{{_isRowSelected}}">
+              <template is="dom-if" if="{{_isSingleRowSelected}}">
+                <div><paper-icon-button icon="icons:create" on-click="_selectOne"></paper-icon-button></div>  
               </template>
+              <div><paper-icon-button icon="icons:delete"  on-click="_delete"></paper-icon-button></div>  
+            </template>
+
             </div>
 
           </div>
@@ -145,9 +151,11 @@ Example:
               
             </div>
             
-            <div class="flex-2 center-layout margin-style"><span>Code</span></div>
-            <div class="flex-7 center-layout"><span>Name</span></div>
-            <div class="horizontal flex-4 center-layout"><span>Owner</span></div>
+           
+               <div class="flex-2 center-layout margin-style"><span>Code</span></div>
+               <div class="flex-7 center-layout"><span>Name</span></div>
+               <div class="horizontal flex-4 center-layout"><span>Owner</span></div>
+             
           </div>
         </template>
         
@@ -179,9 +187,18 @@ Example:
           type:Array,
           value: function() {
             return [];
-          },
-          observer: '_jsonChanged'
+          }
         },
+        
+        selectedItem : {
+          type:Object,
+          notify:true
+        },
+        selectedList : {
+          type:Array,
+          notify:true
+        },
+        
         loading: {
           type: Boolean,
           value: false,
@@ -193,6 +210,9 @@ Example:
         }
 
       },
+      observers: [
+        '_jsonChanged(json.*)'
+      ],
     
       ready: function() {   
         
@@ -200,33 +220,61 @@ Example:
         this.loading = true;
         this.$.getQuery.url = "/mongo/tqf/curriculum/";
         this.$.getQuery.generateRequest();
+        
+        this._isRowSelected = false;
+        this.set('selectedList',[]);
       },
       _jsonChanged: function(changeRecord) {
-        var jsonList = changeRecord.base;
+        //console.log(changeRecord); // json.#.selected e.g. json.3.selected
         
-        /*for(var i=0;i<jsonList.length;i++) {
-          if(jsonList[i].selected) {
-           // tmp = true;
-           console.log(i+"="+jsonList[i].selected);
-            break;
-          }
-        }*/
-       /* var tmp = false;
-        for(var i=0;i<jsonList.length;i++) {
-          if(jsonList[i].selected) {
-            tmp = true;
-            break;
+       var path_array = changeRecord.path.split('.');
+        if(path_array[2]=="selected") {
+          var selectedObj = changeRecord.base[parseInt(path_array[1])];
+          if(selectedObj.selected) {
+            this.push('selectedList',selectedObj);
+          } else {
+            if(this.selectedList) {
+              for(var i=0;i<this.selectedList.length;i++) {
+                if(this.selectedList[i]._id == selectedObj._id) {
+                  this.splice('selectedList',i,1);
+                  break;
+                }
+              }    
+            }
           }
         }
-        this._isRowSelected = tmp;*/
+        
+        //alert(this.selectedList);
+          if(this.selectedList) {
+            this._isRowSelected = this.selectedList.length > 0;
+          if(this.selectedList.length == 1) {
+            this._isSingleRowSelected = true;
+            this.set('selectedItem',this.selectedList[0]);
+          } else {
+            this._isSingleRowSelected = false;
+          }
+        }
+        console.log(this.selectedList);
+        
       },
     _handleResponse: function() {
 
       this.set('json',this.$.getQuery.lastResponse);
+      this.set('selectedList',[]);
+      this.set('selectedItem',{});
       this.loading = false;
       
     } ,
+    _selectOne : function() {
+        this.set('selectedItem',this.selectedList[0]);
+        if(this._editPage) {
+          this._editPage = false;
+        } else {
+          this._editPage = true;
+        }
+      },
     _isSelected : function(selected) {
+      //alert("test");
         if(selected) {
           return "horizontal content selected"
         } else {
