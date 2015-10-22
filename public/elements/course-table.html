@@ -7,14 +7,13 @@
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
-
-<link  rel="import" href="search-bar.html">
-
+<link rel="import" href="course-panel.html">
+<link rel="import" href="search-bar.html">
 
 <dom-module id="course-table">
   <template>
    
-      <style>
+    <style>
     :host {
       display: block;
       box-sizing: border-box;
@@ -155,7 +154,7 @@
         </div>  
         
         <div hidden="{{!_editPage}}">
-          <course-panel json="{{selectedItem}}"  on-inserted="_log"></course-panel>
+          <course-panel json="{{selectedItem}}" on-inserted="_log"></course-panel>
         </div>
         
       </div>
@@ -206,7 +205,7 @@
       },
       _jsonChanged: function(changeRecord) {
         // keep record of selected
-        console.log(changeRecord); // json.#.selected e.g. json.3.selected
+        //console.log(changeRecord); // json.#.selected e.g. json.3.selected
         var path_array = changeRecord.path.split('.');
         if(path_array[2]=="selected") {
           var selectedObj = changeRecord.base[parseInt(path_array[1])];
@@ -232,7 +231,7 @@
             this._isSingleRowSelected = false;
           }
         }
-        console.log(this.selectedList);
+        //console.log(this.selectedList);
       },
       _selectOne : function() {
         this.set('selectedItem',this.selectedList[0]);

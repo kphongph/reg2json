@@ -18,7 +18,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
-
+<link rel="import" href="curriculum-panel-2.html">
+<link rel="import" href="search-bar.html">
 <!--
 An element providing a solution to no problem in particular.
 
@@ -32,18 +33,14 @@ Example:
 @hero hero.svg
 -->
 <dom-module id="curriculum-report">
-        
   <template>
-    
     <style>
     :host {
       display: block;
       box-sizing: border-box;
     }
-    
 
- 
-  .center-layout{
+    .center-layout{
       @apply(--layout-center);
       @apply(--layout);
     }
@@ -62,7 +59,6 @@ Example:
     .flex-10 {
       @apply(--layout-flex-10); 
     }
-    
     
     .header {
       @apply(--paper-font-caption);
@@ -113,66 +109,64 @@ Example:
       border-bottom-style:solid;
       border-bottom-color: var(--divider-color);
     }
- 
-
   </style>
-    
     <iron-ajax 
       id="getQuery"            
       handle-as="json"
       method="GET"
       content-type="application/json"
       on-response="_handleResponse"></iron-ajax>
-          
+
+  <iron-ajax 
+      id="countAjax"            
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleCountResponse">
+  </iron-ajax>
+  
     <paper-material>
-      
-       <div class="vertical shadow">
+      <div class="vertical shadow">
         <template is="dom-if" if="{{hasPlan}}">
           <div class="horizontal layout center-layout">
-            <div class="flex-6 caption margin-style center-layout">Curriculum List</div>
-            
+            <div class="flex-6 caption margin-style center-layout">Curriculum List (<span>{{_total.count}}</span>)</div>
             <div class="flex-3 horizontal layout end-justified">
-
- <div><paper-icon-button icon="icons:add" on-click="_addEntry"></paper-icon-button></div>
-            <template is="dom-if" if="{{_isRowSelected}}">
-              <template is="dom-if" if="{{_isSingleRowSelected}}">
-                <div><paper-icon-button icon="icons:create" on-click="_selectOne"></paper-icon-button></div>  
+              <search-bar search-input="{{_searchInput}}"></search-bar>
+              <paper-icon-button icon="icons:add" on-click="_addEntry"></paper-icon-button></div>
+              <template is="dom-if" if="{{_isRowSelected}}">
+                <template is="dom-if" if="{{_isSingleRowSelected}}">
+                  <div><paper-icon-button icon="icons:create" on-click="_selectOne"></paper-icon-button></div>  
+                </template>
+                <div><paper-icon-button icon="icons:delete"  on-click="_delete"></paper-icon-button></div>  
               </template>
-              <div><paper-icon-button icon="icons:delete"  on-click="_delete"></paper-icon-button></div>  
-            </template>
-
             </div>
-
           </div>
       
+      <div hidden="{{_editPage}}">
         <div class="vertical shadow">
           <div class="horizontal header">
-            <div class="flex-1">
-              
-            </div>
-            
-           
+            <div class="flex-1"></div>
                <div class="flex-2 center-layout margin-style"><span>Code</span></div>
                <div class="flex-7 center-layout"><span>Name</span></div>
                <div class="horizontal flex-4 center-layout"><span>Owner</span></div>
-             
           </div>
         </template>
         
           <template is="dom-repeat" items="{{json}}" as="json">
            <div class$="{{_isSelected(json.selected)}}">
-             
                  <div class="flex-1 content center-layout checkbox-cell">
                     <paper-checkbox checked="{{json.selected}}"></paper-checkbox>
                   </div>
-                  
-              
               <div class="flex-2 center-layout left">{{json.number}}</div>
               <div class="flex-7 center-layout">{{json.name.thai}}</div>
               <div class="horizontal flex-4 center-layout">{{json.owner.department}}</div>
-             
             </div>
           </template>
+          </div>
+          
+          <div hidden="{{!_editPage}}">
+          <curriculum-panel-2 json="{{selectedItem}}"  on-inserted="_log"></curriculum-panel-2>
+        </div>
+        
         </div>
     </paper-material>
     <paper-spinner active="{{loading}}"></paper-spinner>
@@ -220,7 +214,8 @@ Example:
         this.loading = true;
         this.$.getQuery.url = "/mongo/tqf/curriculum/";
         this.$.getQuery.generateRequest();
-        
+        this._editPage = false;
+        this._count();
         this._isRowSelected = false;
         this.set('selectedList',[]);
       },
@@ -265,6 +260,14 @@ Example:
       this.loading = false;
       
     } ,
+    _handleCountResponse: function() {
+        this._total = this.$.countAjax.lastResponse;
+        //this.$.getQuery.generateRequest();   
+      },
+     _count: function() {
+        this.$.countAjax.url = '/mongo/tqf/curriculum?count=1';
+        this.$.countAjax.generateRequest();
+      },
     _selectOne : function() {
         this.set('selectedItem',this.selectedList[0]);
         if(this._editPage) {
@@ -280,10 +283,26 @@ Example:
         } else {
           return "horizontal content"
         }
+      },
+      _addEntry : function() {
+        ///this.selectedItem = {'number':'','name':{'thai':'','english':''}};
+        //this.selectedItem = {};
+        if(this._editPage) {
+          this._editPage = false;
+        } else {
+          this._editPage = true;
+        }
+      },
+      _log:function(e){
+        if(e.detail.ok) {
+          this._count();
+          this.$.getQuery.url = "/mongo/tqf/curriculum?limit=10";
+          this.$.getQuery.generateRequest();
+          this._editPage = false;
+        }
       }
 
   });
 
 </script>
-  
 </dom-module>

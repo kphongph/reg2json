@@ -43,14 +43,23 @@
       },
       _handleResponse : function() {
         //this.set('doc',this.$.mongoQuery.lastResponse);
-        var clone = this.stamp({});
-        clone.doc = this.$.mongoQuery.lastResponse;
-        Polymer.dom(this.$.document).appendChild(clone.root);
-        //console.log(clone);
+        this.set('doc',this.$.mongoQuery.lastResponse);
+        
+        var template = Polymer.dom(this.$.templates).getDistributedNodes()[0];
+        if(template) {
+          var clone = this.stamp({});
+          clone.doc = this.$.mongoQuery.lastResponse;
+          //Polymer.dom(this.$.document).firstChild = clone.root;
+          Polymer.dom(this.$.document).innerHTML = '';
+          Polymer.dom(this.$.document).appendChild(clone.root);
+          //  console.log(clone);
+        }
       },
       ready: function() {
         var template = Polymer.dom(this.$.templates).getDistributedNodes()[0];
-        this.templatize(template);
+        if(template) {
+          this.templatize(template);
+        }
       }
 
     });

@@ -1,8 +1,14 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
- <link rel="import" href="curriculum-report.html">
- <link rel="import" href="course-table.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="curriculum-report.html">
+<link rel="import" href="course-table.html">
 <link rel="import" href="mongo-document.html">
  
  <dom-module id="curriculum-mapping">
@@ -10,38 +16,218 @@
   <template>
     
     <style>
-    :host {
-      display: block;
-      box-sizing: border-box;
+      :host {
+        display: block;
+        box-sizing: border-box;
+      }
+      
+    .center-layout{
+      @apply(--layout-center);
+      @apply(--layout);
     }
-     </style>
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .flex-3 {
+      @apply(--layout-flex-3); 
+    }
+    .flex-5 {
+      @apply(--layout-flex-5); 
+    }
+    .flex-10 {
+      @apply(--layout-flex-10); 
+    }
+    
+    .header {
+      @apply(--paper-font-caption);
+      text-align:left;
+      color: #000;
+      opacity: 0.64;
+      height:56px;
+      border-bottom-width:1px;
+      border-bottom-style:solid;
+      border-bottom-color: var(--divider-color);
+    }
+      
+    .caption {
+      @apply(--paper-font-title);
+      text-align:left;
+      color: #000;
+      opacity: 0.87;
+      height:20px;
+    }
+          
+    .margin-style{
+      margin-left:24px;
+    }
+    
+    .left{
+      text-align:left;
+    }
+    
+    .checkbox-cell {
+      padding-left:24px;
+    }
+    
+    .selected {
+      background-color:#F5F5F5;
+    }
+    
+    .content {
+      @apply(--paper-font-menu);
+      text-align:left;
+      color: #000;
+      opacity: 0.87;
+      height:48px;
+      border-bottom-width:1px;
+      border-bottom-style:solid;
+      border-bottom-color: var(--divider-color);
+    }
+    
+    </style>
      
-      <iron-ajax 
+    <iron-ajax 
       id="getQuery"            
       handle-as="json"
       method="GET"
       content-type="application/json"
-      on-response="_handleResponse"></iron-ajax>
-     
-     <curriculum-report selected-item="{{curriculum}}"></curriculum-report>
-     
-     <div>{{curriculum.name.thai}}</div>
-     <div>{{courseList.length}}</div>
-     <hr/>
-     
-     
-     
-     <div class="vertical shadow">
-       
-      <template is="dom-repeat" items="{{json}}" as="json">
-        <mongo-document url="/mongo/tqf/course" doc-id="{{json.course_id}}">
-          <template>
-            <span>{{doc.number}}</span>-<span>{{doc.name.thai}}</span>
-          </template>
-        </mongo-document>
+      on-response="_handleResponse">
+    </iron-ajax>
+    
+    <iron-ajax 
+      id="insertAjax"            
+      handle-as="json"
+      method="POST"
+      content-type="application/json"
+      on-response="_handleInsertResponse">
+    </iron-ajax>
+    
+    <iron-ajax 
+      auto
+      url="/mongo/tqf/curriculum"
+      handle-as="json"
+      method="GET"
+      content-type="application/json"
+      last-response="{{curriculumList}}">
+    </iron-ajax>
+    
+    <iron-ajax id="deleteAjax"
+      method="DELETE"
+      handle-as="json"
+      on-response="_handleDeleteResponse">
+    </iron-ajax>
+    
+    
+    <mongo-document url="/mongo/tqf/curriculum" doc-id="{{curriculum.id}}" doc="{{curriculumDoc}}">
+      <template>
       </template>
+    </mongo-document> 
+     
+   <div class="vertical layout">
+     <div class="horizontal layout center-layout">
+      <div class="flex-3 self-stretch">
+        
+    <paper-dropdown-menu label="Curriculum" style="width:100%">
+      <paper-menu class="dropdown-content" selected-item="{{curriculum}}" style="width:100%">
+          <template is="dom-repeat" items="{{curriculumList}}">
+              <paper-item id="{{item._id}}">{{item.name.thai}}</paper-item>
+          </template>
+      </paper-menu>
+    </paper-dropdown-menu>
+     
+         </div>
+    
+    <div class="flex-6 self-stretch">
+           
+     <div>{{curriculum.name.thai}}</div>
+     
+     <div class="vertical layout">
+       
+
+        <paper-material> 
+        
+         <div class="vertical shadow">
+            <div class="horizontal layout center-layout">
+               <div class="flex-6 caption margin-style center-layout">Course map list </div>
+               
+            </div>  
+        </div>
+        
+        
+      
+         <div class="vertical shadow">
+          <div class="horizontal header">
+              
+               <div class="flex-2 center-layout margin-style"><span>Code</span></div>
+               <div class="flex-6 center-layout"><span>Name</span></div>
+               <div class="horizontal flex-2 center-layout"><span>Action</span></div>
+          </div>
+         
+          
+         <template is="dom-repeat" items="{{json}}" as="json">
+           
+             
+            <div class="horizontal content">
+            <!--  <mongo-document url="/mongo/tqf/course" doc-id="{{json.course_id}}" doc="{{courseItem}}">
+                     <template>
+                     </template>
+              </mongo-document> -->
+
+              <div class="flex-2 center-layout">        
+              <mongo-document url="/mongo/tqf/course" doc-id="{{json.course_id}}" >
+                 <template> 
+                   <span>{{doc.number}}</span>
+                  </template> 
+              </mongo-document> 
+              </div>
+              
+              <div class="flex-6 center-layout">
+              
+              <mongo-document url="/mongo/tqf/course" doc-id="{{json.course_id}}">
+                 <template> 
+                    <span>{{doc.name.thai}}</span>
+                 </template> 
+              </mongo-document> 
+                
+              </div>
+              
+                  <div class="horizontal flex-2 center-layout"><a href="#" on-click="_del" id="{{json._id}}" >Delete</a></div>
+
+                   <!-- <div class="flex-2 center-layout left">
+                      {{json.course_id}}
+                    </div> -->
+                      <!--<div class="flex-6 center-layout">{{json.course_id}}</div> -->
+                  <!-- <div class="horizontal flex-2 center-layout"><a href="#" on-click="_del" id="{{json.course_id}}" >Delete</a></div>-->
+            </div><!--end horizontal content -->
+          </template> 
+          </div> 
+          
+         </paper-material> 
+        
+        
+       
+      <!--<template is="dom-repeat" items="{{json}}" as="json">
+        <mongo-document url="/mongo/tqf/course" doc-id="{{json.course_id}}">
+         
+           <template>
+            <span>{{doc.number}}</span>-<span>{{doc.name.thai}}</span>
+            <span>{{_log(doc)}}</span>
+             <span>
+                <a href="#" on-click="_del" id="{{json.course_id}}" >Delete</a>
+             </span>
+          </template> 
+          
+
+          
+        </mongo-document> -->
+        
+       <!-- <div> <span>{{json._id}}</span></div> -->
+      <!-- </template> -->
       </div>   
-      <hr/>
+    
       
      <template is="dom-repeat" items="{{courseList}}">
        <span>{{item.name.thai}}</span>
@@ -49,12 +235,21 @@
      
       <div>
          <paper-spinner active="{{loading}}"></paper-spinner>
-        
       </div>
+           
+         
+         </div>
+       </div>
+    </div>
      
+     <!--<curriculum-report selected-item="{{curriculum}}"></curriculum-report> -->
+    
+      
+    <div hidden="{{!curriculumExists(selectedCurriculumId)}}">
+      <course-table selected-list="{{courseList}}"></course-table>
+    </div>
      
-     <course-table selected-list="{{courseList}}"></course-table>
-     
+
      
     </template>
 
@@ -66,35 +261,70 @@
           type:Object,
           notify:true,
           observer:'_curriculumChanged'
-        }
-        ,
+        },
         selectedCurriculumId : {
           type:String,
           notify:true,
+          value:'',
           observer:'_curriculumIdChanged'
+        },
+        courseList : {
+          type:Array,
+          notify:true
         },
         selectedCourseList : {
           type:Array,
-          notify:true
-        }
-      },
-       json: {
+          notify:true,
+          value: function() {
+            return [];
+          }
+        },
+        json: {
           type:Object,
            observer:'_jsonChanged'
         },
-      loading: {
+        loading: {
           type: Boolean,
           value: false,
           notify: true
-        },
+        }
+      },
+      observers: [
+        '_courseListChanged(courseList.*)'
+      ],
+      ready: function() {
+      },
+      curriculumExists: function(val) {
+        console.log('check',val);
+        var ret = false;
+        if(val) {
+          if(val.length>10) {
+            ret=true;
+          }
+        }
+        return ret;
+      },
+      _log: function(doc) {
+        console.log('log');
+        console.log(doc);
+      },
       _curriculumChanged : function() {
        //  this.set('curriculum');
         //console.log(curriculum.);
-         console.log(this.curriculum._id);
-         this.set('selectedCurriculumId',this.curriculum._id);
+        // console.log(this.curriculum._id);
+        // this.set('selectedCurriculumId',this.curriculum._id);
          
         //this.selectedCurriculumId=this.curriculum._id;
         //selectedCurriculumItem
+        
+        if(this.curriculum) {
+          //var query = {'curriculum_id':this.curriculum.id};
+          // this.$.queryCourse.url = "/mongo/tqf/curriculum_course_rel?query="+JSON.stringify(query);
+          //this.$.queryCourse.generateRequest();
+          this.set('selectedCurriculumId',this.curriculum.id);
+          console.log("curriculum id="+this.curriculum.id+" event change!");
+        }
+        
       },
      _curriculumIdChanged: function(newVal) {
         //console.log("count _id ="+newVal.length);
@@ -104,6 +334,50 @@
           this.loading = true;
         }
         
+      },
+      _courseListChanged: function(changeRecord) {
+       //  this.set('curriculum');
+        console.log(changeRecord);
+       // var func = require('array-difference');
+       
+       var selectedArray = [];
+       
+       for(var i=0;i<this.selectedCourseList.length;i++) {
+         selectedArray.push(this.selectedCourseList[i]._id);
+       }
+        
+        var arr_selected =[];
+        var maplist =[];
+        
+        var selectedList = changeRecord.base; //arr
+        var arr_dif =[];
+        
+        for(var i=0;i<changeRecord.base.length;i++) {
+          var exclude = false;
+          for(var j=0;j<this.json.length;j++) {
+            if(this.json[j].course_id == changeRecord.base[i]._id) {
+              exclude=true;
+              break;
+            }
+          }
+          if(!exclude) {
+            if(selectedArray.indexOf(changeRecord.base[i]._id) == -1) { 
+              this.push('selectedCourseList',changeRecord.base[i]);
+              this.$.insertAjax.url = "/mongo/tqf/curriculum_course_rel";
+              this.$.insertAjax.body = {
+                curriculum_id:this.selectedCurriculumId,
+                course_id:changeRecord.base[i]._id
+              };
+              //console.log(this.$.insertAjax.body);
+              //console.log(this.selectedCourseList);
+              this.$.insertAjax.generateRequest();
+              //this.loading = true;
+              
+            }
+          }
+        }
+        
+
       },
      _handleResponse: function() {
       this.set('json',this.$.getQuery.lastResponse);
@@ -115,7 +389,35 @@
      _jsonChanged : function(newVal) {
          //console.log(" "+newVal);
          //console.log(newVal.length);
-         alert(newVal);
+         //alert(newVal);
+      },
+    _handleInsertResponse: function() {
+      //alert(val);
+      this.loading = true;
+      
+             
+      this.$.getQuery.url = '/mongo/tqf/curriculum_course_rel/?query={"curriculum_id":"'+this.selectedCurriculumId+'"}';
+      this.$.getQuery.generateRequest();
+      
+      
+     },
+     _del :function(event) {
+       //alert(event);
+       //console.log(event.srcElement["id"]);
+       
+              this.$.deleteAjax.url = '/mongo/tqf/curriculum_course_rel/'+event.srcElement["id"];
+              console.log('delete :'+this.$.deleteAjax.url);
+              this.$.deleteAjax.generateRequest();
+       
+     },
+      _handleDeleteResponse: function() {
+
+      
+            this.loading = true;
+
+            this.$.getQuery.url = '/mongo/tqf/curriculum_course_rel/?query={"curriculum_id":"'+this.selectedCurriculumId+'"}';
+            this.$.getQuery.generateRequest();
+      
       }
   });
   </script>

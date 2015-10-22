@@ -1,0 +1,206 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+
+<dom-module id="curriculum-panel-2">
+  
+  <template>
+    <style>
+      paper-button[raised].colorful {
+        background: #4285f4;
+        color: #fff;
+      }
+      .caption {
+         @apply(--paper-font-title);
+         text-align:left;
+         color: #000;
+         opacity: 0.87;
+         height:64px;
+      }
+      .margin-left-style{
+        margin-left:24px;
+      }
+      .margin-right-style{
+        margin-right:24px;
+      }
+      .margin-buttom-style{
+        margin-bottom:10px;
+        margin-top:10px;
+      }
+     .center-layout{
+       @apply(--layout-center);
+       @apply(--layout);
+      }
+      .shadow {
+        @apply(--shadow-elevation-2dp);
+      }
+      
+      .fonts{
+        @apply(--paper-font-menu);
+      }
+    </style>
+    
+    <iron-ajax id="insertAjax"
+      url="/mongo/tqf/curriculum"
+      method="POST"
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleResponse">
+    </iron-ajax>
+    
+     <iron-ajax id="getAjax"
+      method="GET"
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleGetResponse">
+    </iron-ajax>
+    
+     <iron-ajax id="updateAjax"
+      method="PUT"
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleUpdateResponse">
+    </iron-ajax>
+    
+    <iron-ajax 
+      id="countAjax"            
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleCountResponse">
+  </iron-ajax>
+  
+    <div class="vertical">
+      <div class="vertical layout">
+      <div>
+
+      </div>
+      <div>
+        <paper-input label="Curriculum Number" value="{{json.number}}">
+        </paper-input>
+      </div>
+      <div>
+        <paper-textarea label="ชื่อหลักสูตรภาษาไทย" value="{{json.name.thai}}">
+        </paper-textarea>
+      </div>
+      
+      <div>
+        <paper-textarea label="ชื่อหลักสูตรภาษาอังกฤษ" value="{{json.name.english}}">
+        </paper-textarea>
+      </div>
+      
+      <div>
+        <paper-textarea label="ชื่อปริญญาภาษาไทย" value="{{json.degree.full.thai}}">
+        </paper-textarea>
+      </div>
+      
+      <div>
+        <paper-textarea label="ชื่อปริญญาภาษาอังกฤษ" value="{{json.degree.full.english}}">
+        </paper-textarea>
+      </div>
+      
+      <div>
+        <paper-textarea label="ชื่อย่อปริญญาหลักสูตรภาษาไทย" value="{{json.degree.abbreviation.thai}}">
+        </paper-textarea>
+      </div>
+      
+      <div>
+        <paper-textarea label="ชื่อย่อปริญญาหลักสูตรภาษาอังกฤษ" value="{{json.degree.abbreviation.english}}">
+        </paper-textarea>
+      </div>
+      
+      <div>
+        <paper-textarea label="คณะ" value="{{json.owner.faculty}}">
+        </paper-textarea>
+      </div>
+      
+      <div>
+        <paper-textarea label="ภาควิชา" value="{{json.owner.department}}">
+        </paper-textarea>
+      </div>
+      
+      
+      <div>
+        <paper-button raised class="colorful fonts" on-click="_insert" hidden="{{json._id}}">Insert</paper-button>
+          <paper-button raised class="colorful fonts" on-click="_update" hidden="{{!json._id}}">Update</paper-button>
+          <paper-toast id="toast1" text="Insert Success."></paper-toast>
+          <paper-toast id="toast2" text="Update Success."></paper-toast>
+      </div>
+    </div>
+      </div>
+  </template>
+  <script>
+     Polymer({
+      is: 'curriculum-panel-2',
+      properties: {
+        //number:String,
+        //descriptionThai:String,
+        //descriptionEnglish:String,
+        docid: {
+          type:String,
+          notify:true,
+          observer:'_docidChanged'
+        },
+        json: {
+          type:Object,
+          notify:true,
+          observer: '_jsonChanged'
+        }
+      },
+      observers: [
+      // '_updateContent(number,descriptionEnglish,descriptionThai)'
+      ],
+      ready: function() {
+        this.set('json',{'number':'','name':{},'description':{}});
+      },
+      _docidChanged: function(newVal) {
+        //console.log(newVal.length);
+        if(newVal && newVal.length == 24) {
+          this.$.getAjax.url = '/mongo/tqf/curriculum/'+newVal;
+          this.$.getAjax.generateRequest();
+        }
+      },
+
+      _jsonChanged: function() {
+      },
+      _insert: function() {
+        console.log('test insert');
+        if(this.json) {
+          console.log(this.json);
+          this.$.insertAjax.body = this.json;
+          //console.log(this.json);
+          this.$.insertAjax.generateRequest();
+          this.$.toast1.show();
+        }
+      },
+      _update: function() {
+        console.log('test Update');
+        if(this.json) {
+          var tmp = JSON.parse(JSON.stringify(this.json));
+          delete tmp['selected'];
+          delete tmp['_id'];
+          this.$.updateAjax.url="/mongo/tqf/curriculum/"+this.json._id;
+          this.$.updateAjax.body = tmp;
+          //console.log(tmp);
+          this.$.updateAjax.generateRequest();
+          this.$.toast2.show();
+        }
+      },
+      _handleResponse: function() {
+        console.log(this.$.insertAjax.lastResponse);
+        this.fire('inserted', this.$.insertAjax.lastResponse);
+      },
+      _handleGetResponse: function() {
+        this.set('json',this.$.getAjax.lastResponse);
+        //console.log(this.$.getAjax.lastResponse);
+      },
+      _handleUpdateResponse: function() {
+        //this.set('json',this.$.updateAjax.lastResponse);
+        //console.log(this.$.updateAjax.lastResponse);
+    }
+      
+    });
+  </script>
+</dom-module>

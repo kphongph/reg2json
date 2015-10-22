@@ -1,0 +1,102 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../mongo-document.html">
+
+<dom-module id="course-outcome">
+  <template>
+    <style>
+      :host {
+        width:100%;
+        display: block;
+        box-sizing: border-box;
+      }
+    </style>
+    
+    <iron-ajax id="updateAjax"
+      method="PUT"
+      handle-as="json"
+      content-type="application/json">
+    </iron-ajax>
+    
+    <mongo-document url="/mongo/tqf/curriculum_course_rel" 
+      doc-id="{{relationId}}" 
+      doc="{{relation}}">
+    </mongo-document>
+    
+    <mongo-document url="/mongo/tqf/curriculum" 
+      doc-id="{{relation.curriculum_id}}" 
+      doc="{{curriculum}}">
+    </mongo-document>
+    
+    <mongo-document url="/mongo/tqf/course" 
+      doc-id="{{relation.course_id}}" 
+      doc="{{_course}}">
+    </mongo-document>
+    
+    <div class="horizontal layout">
+      <div class="flex-1">
+        <span>{{_course.number}}</span>&nbsp;
+        <span>{{_course.name.thai}}</span>    
+      </div>
+      <div class="flex-4">
+        <div class="horizontal layout">
+          <template is="dom-repeat" items="{{relation.learning_outcome.content}}">
+            <div class="flex-1">
+              <tristate-checkbox state="{{item.value}}"></tristate-checkbox>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'course-outcome',
+      properties: {
+        relationId:String
+      },
+      observers: [
+        '_mapping(relation, curriculum)',
+        'outcomeChanged(relation.learning_outcome.content.*)'
+      ],
+      outcomeChanged:function(changeRecord) {
+        if(changeRecord.path.endsWith('value')) {
+          var tmp = JSON.parse(JSON.stringify(this.relation));
+          delete tmp['_id'];
+          this.$.updateAjax.url="/mongo/tqf/curriculum_course_rel/"+this.relation._id;
+          this.$.updateAjax.body = tmp;
+          //console.log(tmp);
+          this.$.updateAjax.generateRequest();
+        }
+      },
+      _mapping:function(relation,curriculum) {
+        var category = null;
+        for(var i=0;i<curriculum.learning_outcome_list.length;i++) {
+          if(curriculum.learning_outcome_list[i].name == relation.learning_outcome.name) {
+            category = curriculum.learning_outcome_list[i];
+            break;
+          }
+        }
+        var sorted_content = [];
+        for(var i=0;i<category.content.length;i++) {
+          var item = category.content[i];
+          for(var j=0;j<relation.learning_outcome.content.length;j++) {
+            var tmp = relation.learning_outcome.content[j];
+            if(item.label == tmp.label && item.type == tmp.type) {
+              item.value = 0;
+              if(tmp.value!=null) {
+                item.value = tmp.value;
+              } 
+              break;
+            }
+          }
+          sorted_content.push(item);
+        }
+        this.set('relation.learning_outcome.content',sorted_content);
+        //console.log(this.relation.learning_outcome.content);
+        //return this._relation.learning_outcome.content;
+      }
+    });
+  </script>
+</dom-module>

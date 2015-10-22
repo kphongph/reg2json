@@ -13,12 +13,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <title>seed-element Demo</title>
-    <script src="./bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="./elements/grade-report-panel.html">   
-     <link rel="import" href="./elements/curriculum-report.html">
-     <link rel="import" href="./elements/curriculum-panel.html">
-     <link rel="import" href="./elements/curriculum-mapping.html">
-    <link rel="import" href="./elements/grade-summary.html">
+    <script src="/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="mtable.html">   
   </head>
   <body unresolved>    
     <!--
@@ -29,18 +25,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <course-control></course-control>
     </div>
     -->
-    <h1>App 1</h1>
-    <p>
-    <grade-report-panel></grade-report-panel>
-    </p>
-    <h1>App 2</h1>
-    <p>
-    <grade-summary></grade-summary>
-    </p>
-    <h1>App 3</h1>
-    <p>
-    <curriculum-mapping></curriculum-mapping>
-    </p>
+    <m-table title="Hello 123" 
+        layout='[{"flex":1},{"flex":2},{"flex":3}]'
+        data='[["Label 1","Price 2","header3"],["content11","content12","content13"],["content21","content22","content23"],["content31","content32","content23"]]'></m-table>
     <!--
     <div style="width:900px;">
       <hr/>
@@ -59,10 +46,5 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <curriculum-panel json='{"number":"","name":{"thai":"","english":""},"degree":{"full":{"thai":"","english":""},"abbreviation":{"thai":"","english":""}},"owner":{"faculty":"","department":""}}' ></curriculum-panel>
     </div>
     -->
-        <!-- <hr/>
-     <div style="width:900px;">
-         <curriculum-report  ></curriculum-report>
-    </div> -->
-    
   </body>
 </html>

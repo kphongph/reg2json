@@ -1,0 +1,248 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="mongo-document.html">
+<link rel="import" href="grade-ajax.html">
+
+
+<dom-module id="grade-summary">
+  <template>
+    <style>
+    .headerPlan {
+      @apply(--paper-font-caption);
+      text-align:left;
+      color: #000;
+      opacity: 0.54;
+      height:56px;
+      border-bottom-width:1px;
+      border-bottom-style:solid;
+      border-bottom-color: var(--divider-color);
+    }
+    
+    .margin-left-style{
+      margin-left:24px;
+    }
+    
+    .margin-right-style{
+      margin-right:24px;
+    }
+    
+    .header {
+      @apply(--paper-font-caption);
+      text-align:right;
+      color: #000;
+      opacity: 0.54;
+      height:56px;
+      border-bottom-width:1px;
+      border-bottom-style:solid;
+      border-bottom-color: var(--divider-color);
+    }
+    
+    .center-layout{
+      @apply(--layout-center);
+      @apply(--layout);
+    }
+    
+    .contentPlan {
+      @apply(--paper-font-menu);
+      text-align:left;
+      color: #000;
+      opacity: 0.87;
+      height:48px;
+      border-bottom-width:1px;
+      border-bottom-style:solid;
+      border-bottom-color: var(--divider-color);
+    }
+    
+    .content {
+      @apply(--paper-font-menu);
+      text-align:right;
+      color: #000;
+      opacity: 0.87;
+      height:48px;
+      border-bottom-width:1px;
+      border-bottom-style:solid;
+      border-bottom-color: var(--divider-color);
+    }
+    </style>
+    <iron-ajax 
+      auto
+      url="/mongo/tqf/curriculum"
+      handle-as="json"
+      method="GET"
+      content-type="application/json"
+      last-response="{{curriculumList}}">
+    </iron-ajax>
+    
+    
+    <iron-ajax 
+      id="queryCourse"
+      handle-as="json"
+      method="GET"
+      content-type="application/json"
+      last-response="{{courseList}}">
+    </iron-ajax>
+    
+    
+    <mongo-document url="/mongo/tqf/curriculum" doc-id="{{selectedCurriculum.id}}" doc="{{curriculumDoc}}">
+      <template>
+      </template>
+    </mongo-document> 
+    
+    <paper-material>
+      <div class="vertical layout">
+        <div class="horizontal center-layout layout end-justified">
+          <div class="flex-5 self-stretch">
+            <paper-dropdown-menu label="Curriculum" style="width:100%">
+              <paper-menu class="dropdown-content" selected-item="{{selectedCurriculum}}" style="width:100%">
+                <template is="dom-repeat" items="{{curriculumList}}">
+                  <paper-item id="{{item._id}}">
+                    <span>{{item.name.thai}}</span>
+                    (<span>{{item.start_year}}</span>)
+                  </paper-item>
+                </template>
+              </paper-menu>
+            </paper-dropdown-menu>
+          </div>
+          <div class="flex">
+            <paper-input label="Year" value="{{year}}" ></paper-input>
+          </div>
+          <div class="flex">
+            <paper-input label="Semester" value="{{semester}}"></paper-input>
+          </div>
+        </div>
+        
+        
+        <div class="horizontal layout header">
+          <div class="flex-4 headerPlan center-layout margin-left-style">
+            <span>Course</span>
+            <paper-spinner active="{{loading}}"></paper-spinner>
+          </div>
+          <div class="horizontal layout flex-7 center-layout  margin-right-style">
+            <div class="flex-1">A</div>
+            <div class="flex-1">B+</div>
+            <div class="flex-1">B</div>
+            <div class="flex-1">C+</div>
+            <div class="flex-1">C</div>
+            <div class="flex-1">D+</div>
+            <div class="flex-1">D</div>
+            <div class="flex-1">F</div>
+            <div class="flex-1">W</div>
+            <div class="flex-1">S</div>
+            <div class="flex-1">I</div>
+            <div class="flex-1">U</div>
+          </div>
+        </div>
+    
+        <template is="dom-repeat" items="{{courseList}}">
+          <mongo-document url="/mongo/tqf/course" doc-id="{{item.course_id}}" doc="{{item.doc}}">
+            <template>
+            </template>
+          </mongo-document>  
+          <grade-ajax year="{{year}}" semester="{{semester}}" course="{{item.doc.number}}" 
+            response="{{item.response}}" loading="{{loading}}">
+          </grade-ajax>
+          
+          
+          <template is="dom-repeat" items="{{filterCurriculum(curriculumDoc,item.response)}}" as="grade">
+            <template is="dom-if" if="{{_greaterThanZero(grade.total)}}">
+              <div class="horizontal layout content">
+                <div class="flex-4 contentPlan center-layout margin-left-style">{{grade.name}}</div>
+                <div class="horizontal flex-7 center-layout margin-right-style">
+                  <div class="flex-1">{{grade.A}}</div>
+                  <div class="flex-1">{{grade.Bp}}</div>
+                  <div class="flex-1">{{grade.B}}</div>
+                  <div class="flex-1">{{grade.Cp}}</div>
+                  <div class="flex-1">{{grade.C}}</div>
+                  <div class="flex-1">{{grade.Dp}}</div>
+                  <div class="flex-1">{{grade.D}}</div>
+                  <div class="flex-1">{{grade.F}}</div>
+                  <div class="flex-1">{{grade.W}}</div>
+                  <div class="flex-1">{{grade.S}}</div>
+                  <div class="flex-1">{{grade.I}}</div>
+                  <div class="flex-1">{{grade.U}}</div> 
+                </div>
+              </div>
+            </template>
+          </template>
+        </template>
+      </div>
+    </paper-material>
+  </template>
+  
+  <script>
+    Polymer({
+      is: 'grade-summary',
+      properties : {
+        selectedCurriculum : {
+          type: Object,
+          observer: '_selectedCurriculumChanged'
+        }
+      },
+      _greaterThanZero:function(count) {
+        if(count) {
+          return count>0?true:false;
+        } 
+        return false;
+      },
+      _selectedCurriculumChanged:function() {
+        if(this.selectedCurriculum) {
+          var query = {'curriculum_id':this.selectedCurriculum.id};
+          this.$.queryCourse.url = "/mongo/tqf/curriculum_course_rel?query="+JSON.stringify(query);
+          this.$.queryCourse.generateRequest();
+          console.log(this.selectedCurriculum.id);
+        }
+      },
+      filterCurriculum:function(curriculum,courseList) {
+        var result = [];
+        var start_year = curriculum.start_year?curriculum.start_year:'2555';
+        var start_year_int = parseInt(start_year);
+        var end_year = curriculum.end_year?curriculum.end_year:'';
+        var end_year_int = start_year_int+10;
+        console.log(courseList);
+        if(courseList.length==0) return result;
+        if(end_year.length==4) {
+          end_year_int = parseInt(end_year);
+        }
+        var c_name = curriculum.degree.abbreviation.thai.replace(/\s*/g,'');
+        //console.log(c_name);
+        
+        var grade_order = ['A','B','C','C+','B+','D','D+','F','W','S','I','U'];
+        var grade_name = ['A','B','C','Cp','Bp','D','Dp','F','W','S','I','U'];
+        var grade_count = {
+          'name':courseList[0].id+' '+courseList[0].name_en,
+          'total':0
+        };
+        
+        for(var i=0;i<grade_name.length;i++) {
+          grade_count[grade_name[i]]=0;
+        }
+        
+        var filter_plan = [];
+        for(var i=0;i<courseList.length;i++) {
+          var section = courseList[i];
+          for(var j=0;j<section.grade_list.length;j++) {
+            var p_name = section.grade_list[j].course_plan.replace(/\s*/g,'');
+            var s_id = 2500 + parseInt(section.grade_list[j].id.replace(/\s*/g,''));
+            //console.log(p_name,c_name);
+            if(p_name == c_name) {
+              if(s_id >= start_year_int && s_id <= end_year_int) {
+                var idx = grade_order.indexOf(section.grade_list[j].grade);
+                grade_count[grade_name[idx]]++;
+                grade_count.total++;
+                //console.log(p_name,c_name);
+              }
+            }
+          }
+        }
+        result.push(grade_count);
+        return result;
+      }
+    });
+  </script>
+</dom-module>

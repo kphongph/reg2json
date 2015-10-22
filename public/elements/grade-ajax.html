@@ -60,6 +60,7 @@
       ],
       _updateQuery: function(year,semester,course) {      
         var check_st = year+''+semester+''+course;
+        //console.log(check_st);
         if((/^\d{11}$/).test(check_st)) {
           this.loading = true;
           var querypath = "/course/"+year+"/"+semester+"/"+course;
@@ -76,6 +77,7 @@
         } else {
           if(!this.force) {
             this.set('response',lastResponse[0].content);
+            this.loading = false;
           } else {
             this.$.deleteAjax.url = "/mongo/tqf/grade/"+lastResponse[0]._id;
             this.$.deleteAjax.generateRequest();
@@ -86,6 +88,7 @@
       _handleRegResponse: function() {
         var lastResponse = this.$.regQuery.lastResponse;
         this.set('response',lastResponse);
+        this.loading = false;
         // update mongo content
         this.$.insertAjax.url = "/mongo/tqf/grade";
         var obj = {};

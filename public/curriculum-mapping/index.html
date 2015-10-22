@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>seed-element Demo</title>
+    <script src="/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="/bower_components/polymer/polymer.html">
+    
+    <link rel="import" href="../elements/learning-outcome/learning-outcome.html">  
+  </head>
+  <body unresolved>    
+    <!--<tristate-checkbox></tristate-checkbox>
+    <tristate-checkbox state="1"></tristate-checkbox>
+    <tristate-checkbox state="2"></tristate-checkbox>-->
+    
+    
+    <template id="t" is="dom-bind">
+      <learning-outcome></learning-outcome>
+      <!--<span>{{selectedCurriculum._id}}</span>-->
+    </template>
+
+  </body>
+  
+  <script>
+    var t = document.querySelector('#t');
+    // The dom-change event signifies when the template has stamped its DOM.
+    t.addEventListener('dom-change', function() {
+      // auto-binding template is ready.
+    });
+  </script>
+  
+</html>

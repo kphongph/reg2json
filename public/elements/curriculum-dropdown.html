@@ -1,0 +1,57 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+
+<dom-module id="curriculum-dropdown">
+  <template>
+    
+    <iron-ajax 
+      auto
+      url="/mongo/tqf/curriculum"
+      handle-as="json"
+      method="GET"
+      content-type="application/json"
+      last-response="{{curriculumList}}">
+    </iron-ajax>
+    
+    <iron-ajax 
+      auto
+      id="getCurriculum"
+      handle-as="json"
+      method="GET"
+      content-type="application/json"
+      last-response="{{selectedCurriculum}}">
+    </iron-ajax>
+    
+    <paper-dropdown-menu label="Curriculum" style="width:100%">
+      <paper-menu class="dropdown-content" selected-item="{{_selectedItem}}" style="width:100%">
+          <template is="dom-repeat" items="{{curriculumList}}">
+              <paper-item id="{{item._id}}">
+                <span>{{item.name.thai}}</span>&nbsp;<span>{{item.start_year}}</span>
+              </paper-item>
+          </template>
+      </paper-menu>
+    </paper-dropdown-menu>
+  </template>
+  <script>
+      Polymer({
+        is: 'curriculum-dropdown',
+        properties : {
+          selectedCurriculum : {
+            type:Object,
+            notify:true
+          },
+          _selectedItem : {
+            type:Object,
+            notify:true,
+            observer:'_selectedItemChanged'
+          }
+        },
+        _selectedItemChanged : function() {
+          this.$.getCurriculum.url = '/mongo/tqf/curriculum/'+this._selectedItem.id;
+        }
+      });
+  </script>
+</dom-module>

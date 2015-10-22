@@ -1,0 +1,151 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../curriculum-dropdown.html">
+<link rel="import" href="../mongo-document.html">
+<link rel="import" href="tristate-checkbox.html">
+<link rel="import" href="course-outcome.html">
+
+
+<dom-module id="learning-outcome">
+  <template>
+    <style>
+      :host {
+        display: block;
+        box-sizing: border-box;
+      }
+
+      .center-layout{
+        @apply(--layout-center);
+        @apply(--layout);
+      }
+      .horizontal {
+        @apply(--layout-horizontal);
+      }
+      .vertical {
+        @apply(--layout-vertical);
+      }
+
+      .header {
+        @apply(--paper-font-caption);
+        text-align:left;
+        color: #000;
+        opacity: 0.54;
+        height:56px;
+        border-bottom-width:1px;
+        border-bottom-style:solid;
+        border-bottom-color: var(--divider-color);
+      }
+      
+      .caption {
+        @apply(--paper-font-title);
+        text-align:left;
+        color: #000;
+        opacity: 0.87;
+        height:64px;
+      }
+      
+      .margin-style{
+        margin-left:24px;
+      }
+      
+      .content {
+        @apply(--paper-font-menu);
+        text-align:left;
+        color: #000;
+        opacity: 0.87;
+        height:48px;
+        border-bottom-width:1px;
+        border-bottom-style:solid;
+        border-bottom-color: var(--divider-color);
+      }
+      
+      .bl {
+        background-color:blue;
+      }
+      
+      .rd {
+        background-color:red;
+      }
+      
+      
+      .title {
+        @apply(--paper-font-title);
+        height:64px;
+      }
+      .shadow {
+         @apply(--shadow-elevation-2dp);
+      }
+    
+    </style>
+    
+    <iron-ajax 
+      id="getQuery"            
+      auto
+      handle-as="json"
+      method="GET"
+      content-type="application/json"
+      last-response="{{courseList}}">
+    </iron-ajax>
+    
+    <div class="vertical layout" style="width:100%">
+      <div>
+        <curriculum-dropdown selected-curriculum="{{selectedCurriculum}}"></curriculum-dropdown>
+      </div>
+      <div class="vertical layout">
+        <template is="dom-repeat" items="{{selectedCurriculum.learning_outcome_list}}" as="learning_outcome">
+          <div class="horizontal layout center">
+            <div class="flex-1">{{learning_outcome.name}}</div>
+            <div class="flex-4">
+              <div class="horizontal layout">
+                <template is="dom-repeat" items="{{learning_outcome.content}}">
+                  <div class="flex">{{item.label}}</div>
+                </template>
+              </div>
+            </div>
+          </div>
+          <template is="dom-repeat" items="{{filterByType(courseList,learning_outcome)}}" as="course">
+            <div class="horizontal layout">
+              <course-outcome relation-id="{{course._id}}"></course-outcome>  
+            </div>
+          </template>
+        </template>
+      </div>
+    </div>
+  </template>
+  
+  <script>
+      Polymer({
+        is: 'learning-outcome',
+        properties : {
+          selectedCurriculum : {
+            type:Object,
+            notify:true,
+            observer:'_selectedCurriculumChanged'
+          }
+        },
+        _selectedCurriculumChanged:function(newVal) {
+          if(newVal!=null) {
+            this.$.getQuery.url = '/mongo/tqf/curriculum_course_rel/?query={"curriculum_id":"'+newVal._id+'"}';
+          }
+        },
+        filterByType:function(courseList,outcome) {
+          var result = [];
+          if(courseList) {
+            for(var i=0;i<courseList.length;i++) {
+              if(courseList[i].learning_outcome && courseList[i].learning_outcome.name) {
+                if(outcome.name == courseList[i].learning_outcome.name) {
+                  result.push(courseList[i]);
+                }  
+              }
+            }
+          }
+          return result;
+        },
+        
+      });
+      
+      
+  </script>
+  
+</dom-module>

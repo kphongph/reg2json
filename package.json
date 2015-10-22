@@ -11,6 +11,7 @@
     "url": "git+https://github.com/kphongph/reg2json.git"
   },
   "dependencies": {
+    "array-difference": "0.0.1",
     "body-parser": "^1.14.1",
     "express": "*",
     "extend": "^3.0.0",

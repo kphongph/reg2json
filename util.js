@@ -411,14 +411,18 @@ exports.getCourseInfo = function(year,semester,courseid,cb) {
               r.push(result.sections[i]);
             }
           }
-          var ret = [];
-          for(var i=0;i<r.length;i++) {
-            query_section(cookie,r[i],function(section_info) {
-              ret.push(section_info);
-              if(ret.length==r.length) {
-                cb(ret);
-              }
-            });
+          if(r.length==0) {
+            cb([]);
+          } else {
+            var ret = [];
+            for(var i=0;i<r.length;i++) {
+              query_section(cookie,r[i],function(section_info) {
+                ret.push(section_info);
+                if(ret.length==r.length) {
+                  cb(ret);
+                }
+              });
+            }
           }
         });
       });

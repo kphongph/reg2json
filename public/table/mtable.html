@@ -1,0 +1,158 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+
+<dom-module id="m-table">
+  <template>
+    <style>
+    :host {
+      display: block;
+      box-sizing: border-box;
+    }
+    
+    
+    .center-layout{
+      @apply(--layout-center);
+      @apply(--layout);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .flex-3 {
+      @apply(--layout-flex-3); 
+    }
+    .flex-5 {
+      @apply(--layout-flex-5); 
+    }
+    .flex-10 {
+      @apply(--layout-flex-10); 
+    }
+    
+    
+    .header {
+      @apply(--paper-font-caption);
+      text-align:left;
+      color: #000;
+      opacity: 0.54;
+      height:56px;
+      border-bottom-width:1px;
+      border-bottom-style:solid;
+      border-bottom-color: var(--divider-color);
+    }
+    
+    .caption {
+      @apply(--paper-font-title);
+      text-align:left;
+      color: #000;
+      opacity: 0.87;
+      height:64px;
+    }
+    
+    .test {
+      background-color:#0F0;
+    }
+    
+    .margin-style{
+      margin-left:24px;
+    }
+    
+    .checkbox-cell {
+      padding-left:24px;
+    }
+    
+    .selected {
+      background-color:#F5F5F5;
+    }
+    
+    .content {
+      @apply(--paper-font-menu);
+      text-align:left;
+      color: #000;
+      opacity: 0.87;
+      height:48px;
+      border-bottom-width:1px;
+      border-bottom-style:solid;
+      border-bottom-color: var(--divider-color);
+    }
+    
+    .title {
+      @apply(--paper-font-title);
+      height:64px;
+    }
+    .shadow {
+       @apply(--shadow-elevation-2dp);
+    }
+
+  </style>
+    <paper-material>
+      <div class="vertical shadow">
+        <div class="horizontal">
+          <div class="margin-style center-layout title">{{title}}</div>
+        </div>
+        
+        <!-- Header -->
+        <div class="horizontal layout header">
+          <div class="flex-1"></div>
+          <template is="dom-repeat" items="{{_headers}}">
+            <div class$="{{item.css}}">{{item.name}}</div>  
+          </template>
+        </div>
+        <!-- Content -->
+        <template is="dom-repeat" items="{{_contents}}">
+          <div class$="{{_isSelected(item.selected)}}">
+            <div class="flex-1 center-layout checkbox-cell">
+              <paper-checkbox checked="{{item.selected}}"></paper-checkbox>
+            </div>
+            <template is="dom-repeat" items="{{item.data}}">
+              <div class$="{{item.css}}">{{item.value}}</div>
+            </template>
+          </div>
+        </template>
+    </paper-material>
+  </template>
+  <script>
+      Polymer({
+        is: 'm-table',
+        properties : {
+          title: String,
+          layout: Array,
+          data : {
+            type: Array,
+            notify:true,
+            observer:'_dataChanged'
+          }
+        }, 
+         _isSelected : function(selected) {
+          if(selected) {
+            //console.log("");
+            return "horizontal content selected"
+          } else {
+            return "horizontal content"
+          }
+        },
+        _dataChanged:function() {
+          this._headers = [];
+          this._contents = [];
+          
+          for(var i=0;i<this.data[0].length;i++) {
+            this.push('_headers',{'name':this.data[0][i],'css':'center-layout flex-'+this.layout[i].flex});
+          }
+          
+          for(var i=1;i<this.data.length;i++) {
+            var row = [];
+            for(var k=0;k<this.data[i].length;k++) {
+              row.push({'value':this.data[i][k],'css':'center-layout flex-'+this.layout[k].flex});
+            }
+            this.push('_contents',{'data':row});
+          }
+        }
+      });
+  </script>
+</dom-module>

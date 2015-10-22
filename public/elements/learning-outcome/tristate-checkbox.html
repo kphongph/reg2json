@@ -1,0 +1,84 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+
+
+<dom-module id="tristate-checkbox">
+  <template>
+    <style>
+    
+      #container {
+        display: inline-block;
+        position: relative;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        vertical-align: middle;
+        horizontal-align:center;
+      }
+      .choice {
+        position: absolute;
+        box-sizing: content-box;
+        top: 5px;
+        left: 5px;
+        right: 0px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: solid gray 1px;
+      }
+      .nofill {
+        background: gray;
+        border: solid transparent 1px;
+      }
+      .fill {
+        background: black;
+        border: solid black 1px;
+      }
+    </style>
+    <div id="container">
+      <div class$="{{_stateChanged(state)}}"></div>
+      <paper-ripple recenters class="circle"></paper-ripple>
+    </div>
+  </template>
+  <script>
+      Polymer({
+        is: 'tristate-checkbox',
+        properties : {
+          state: {
+            type:Number,
+            notify:true
+          }
+        },
+        listeners: {
+         'tap': 'regularTap'
+        },
+        ready: function() {
+          if(!this.state) this.state = 0;
+        },
+        regularTap : function() {
+          //console.log(this.state);
+          if(this.state!=null) {
+            if(this.state<2) {
+              this.set('state',this.state+1);
+            } else {
+              this.set('state',0);
+            }
+          } else {
+            this.set('state',1);
+          }
+        },
+        _stateChanged:function(state) {
+          if(state) {
+            if(state==1) {
+              return 'choice nofill';
+            } else {
+              return 'choice fill'; 
+            }
+          } else {
+            return 'choice';
+          }
+        }
+      });
+  </script>
+</dom-module>
