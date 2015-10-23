@@ -92,6 +92,27 @@
       <div>
         <curriculum-dropdown selected-curriculum="{{selectedCurriculum}}"></curriculum-dropdown>
       </div>
+      
+      <div>
+        <paper-dropdown-menu label="Course" style="width:100%">
+          <paper-menu class="dropdown-content" selected-item="{{selectedRelation}}">
+            <template is="dom-repeat" items="{{courseList}}">
+              <paper-item id="{{item._id}}">
+                <mongo-document doc-id="{{item.course_id}}" url="/mongo/tqf/course">
+                  <template>
+                    <span>{{doc.number}}</span>&nbsp;
+                    <span>{{doc.name.thai}}</span>
+                  </template>
+                </mongo-document>
+              </paper-item>
+            </template>
+          </paper-menu>
+        </paper-dropdown-menu>
+      </div>
+      <div>
+        <course-outcome relation-id="{{selectedRelation.id}}"></course-outcome>  
+      </div>
+      <!--
       <div class="vertical layout">
         <template is="dom-repeat" items="{{selectedCurriculum.learning_outcome_list}}" as="learning_outcome">
           <div class="horizontal layout center">
@@ -111,6 +132,7 @@
           </template>
         </template>
       </div>
+      -->
     </div>
   </template>
   

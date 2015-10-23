@@ -35,7 +35,10 @@
     "paper-dropdown-menu": "PolymerElements/paper-dropdown-menu#~1.0.4",
     "paper-item": "PolymerElements/paper-item#~1.0.3",
     "paper-menu": "PolymerElements/paper-menu#~1.1.1",
-    "paper-radio-button": "PolymerElements/paper-radio-button#~1.0.10"
+    "paper-radio-button": "PolymerElements/paper-radio-button#~1.0.10",
+    "paper-tooltip": "PolymerElements/paper-tooltip#~1.1.1",
+    "paper-radio-group": "PolymerElements/paper-radio-group#~1.0.6",
+    "paper-behaviors": "PolymerElements/paper-behaviors#~1.0.7"
   },
   "devDependencies": {}
 }
