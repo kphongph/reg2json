@@ -29,7 +29,7 @@
       <paper-menu class="dropdown-content" selected-item="{{_selectedItem}}" style="width:100%">
           <template is="dom-repeat" items="{{curriculumList}}">
               <paper-item id="{{item._id}}">
-                <span>{{item.name.thai}}</span>&nbsp;<span>{{item.start_year}}</span>
+                <span>{{item.start_year}}</span>&nbsp;<span>{{item.name.thai}}</span>
               </paper-item>
           </template>
       </paper-menu>
@@ -50,7 +50,9 @@
           }
         },
         _selectedItemChanged : function() {
-          this.$.getCurriculum.url = '/mongo/tqf/curriculum/'+this._selectedItem.id;
+          if(this._selectedItem) {
+            this.$.getCurriculum.url = '/mongo/tqf/curriculum/'+this._selectedItem.id;
+          }
         }
       });
   </script>

@@ -1,0 +1,106 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="reg-cache">
+  <template>
+    <iron-ajax
+      id="regQuery"
+      handle-as="json"
+      on-response="_handleRegResponse"
+      method="GET">
+    </iron-ajax>
+    
+    <iron-ajax id="insertAjax"
+      method="POST"
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleInsertResponse">
+    </iron-ajax>
+    
+    <iron-ajax id="mongoQuery"
+      method="GET"
+      handle-as="json"
+      content-type="application/json"
+      on-response="_handleMongoQueryResponse">
+    </iron-ajax>
+    
+    <iron-ajax id="deleteAjax"
+      method="DELETE"
+      handle-as="json"
+      on-response="_handleDeleteResponse">
+    </iron-ajax>
+    
+  </template>
+  
+  <script>
+   Polymer({
+      is: 'reg-cache',
+      properties : {
+        regUrl:String,
+        mongoUrl:String,
+        force: {
+          type:Boolean,
+          value:false
+        },
+        loading: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        lastResponse : {
+          type: Object,
+          notify: true
+        }
+      },
+      observers: [
+      '_updateQuery(regUrl,mongoUrl)'
+      ],
+      _updateQuery: function(regUrl,mongoUrl) {
+        console.log(regUrl,mongoUrl);
+        this.loading = true;
+        var querypath = regUrl;
+        this.$.regQuery.url = querypath;  
+        var query = {'path':querypath};
+        this.$.mongoQuery.url = mongoUrl+"?query="+JSON.stringify(query);
+        this.$.mongoQuery.generateRequest();
+      },
+      _handleMongoQueryResponse: function() {
+        var lastResponse = this.$.mongoQuery.lastResponse;
+        if(lastResponse.length==0) {
+          this.$.regQuery.generateRequest();
+        } else {
+          if(!this.force) {
+            this.set('lastResponse',lastResponse[0].content);
+            console.log(lastResponse[0].content);
+            this.fire('response',lastResponse[0].content, {bubbles: false});
+            this.loading = false;
+          } else {
+            this.$.deleteAjax.url = this.mongoUrl+lastResponse[0]._id;
+            this.$.deleteAjax.generateRequest();
+            this.$.regQuery.generateRequest();
+          }
+        }
+      },
+      _handleRegResponse: function() {
+        var lastResponse = this.$.regQuery.lastResponse;
+        this.set('lastResponse',lastResponse);
+        this.fire('response',lastResponse, {bubbles: false});
+        this.loading = false;
+        // update mongo content
+        this.$.insertAjax.url = this.mongoUrl;
+        var obj = {};
+        obj['path'] = this.$.regQuery.url;
+        obj['content'] = lastResponse;
+        // console.log(lastResponse);
+        this.$.insertAjax.body = obj;
+        this.$.insertAjax.generateRequest();
+      },
+      _handleInsertResponse : function() {
+      //  console.log(this.$.insertAjax.lastResponse);
+      },
+      _handleDeleteResponse:function() {
+      //  console.log(this.$.deleteAjax.lastResponse);
+      }
+   });
+  </script>
+</dom-module>

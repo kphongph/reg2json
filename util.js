@@ -23,6 +23,22 @@ exports.getUTF8 = function(url_path,cb) {
  });
 };
 
+
+exports.extractLink = function(str,cb) {
+  htmlToJson.parse(str, {
+     'links':['a', function($a) {
+       var tmp = {
+         'href':$a.attr('href'),
+         'text':$a.text()
+       };
+       return tmp;
+     }]
+   }, function(err, result) {
+     cb(result.links);
+   });
+}
+
+
 var getLink = function(str,cb) {
    htmlToJson.parse(str, {
      'links':['a', function($a) {

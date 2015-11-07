@@ -1,0 +1,143 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="curriculum-dropdown.html">
+<link rel="import" href="reg-cache.html">
+
+<dom-module id="student-summary">
+  <style>
+    :host {
+      display: block;
+      box-sizing: border-box;
+    }
+    
+  </style>
+  <template>
+
+    <reg-cache id="listStudent" mongo-url="/mongo/tqf/student" 
+      on-response="_handleStudentList" last-response="{{json}}">
+    </reg-cache>
+    
+    <div id="insertion_point"></div>
+    
+    <!--
+    <reg-cache id="studentInfo" mongo-url="/mongo/tqf/student" 
+      on-response="_handleStudentInfo">
+    </reg-cache>
+    -->
+    
+    <div class="vertical layout">
+      <div class="horizontal center layout end-justified">
+        <div>
+          <paper-input label="Acad Year" value="{{year}}" ></paper-input>
+        </div>
+        <div class="flex">
+          <curriculum-dropdown selected-curriculum="{{curriculum}}"></curriculum-dropdown>
+        </div>
+      </div>
+      
+      <template is="dom-repeat" items="{{summary}}">
+        <div class="horizontal layout">
+          <div class="flex-2">{{item.key}}</div>
+          <div class="flex-1">{{item.count}}</div>
+        </div>
+      </template> 
+      
+    </div>
+        
+  </template>
+  
+  <script>
+    Polymer({
+      is: 'student-summary',
+      properties : {
+        year: String,
+        studentList: {
+          type:Array,
+          notify:true
+        },
+        summary: {
+          type:Array,
+          notify:true,
+          value:function() {
+            return [];
+          }
+        },
+        curriculum : {
+          type: Object
+        },
+        json: {
+          type:Object
+        }
+      },
+      observers: [
+        '_updateQuery(year,curriculum)',
+        '_studentAdded(studentList.splices)'
+      ],
+      _updateQuery : function(year,curriculum) {
+        if(year != null && curriculum != null) {
+          console.log('_updateQuery');
+          this.$.listStudent.regUrl = "/student/"+year+"/207/"+curriculum.number;
+        }
+      },
+      _handleStudentList : function(e) {
+        if(e.srcElement.id == 'listStudent') {
+          this.studentList = [];
+          this.statusDict = {};
+          console.log(this.$.listStudent.lastResponse);
+          for(var i=0;i<this.$.listStudent.lastResponse.length;i++) {
+          //for(var i=0;i<2;i++) {
+            var student_id = this.$.listStudent.lastResponse[i].student_id;
+            student_id = student_id.replace(/\s+/g,'');
+            // console.log("/studentinfo/"+student_id);
+            
+            var dynamicEl = document.createElement("reg-cache");
+            dynamicEl.id="studentInfo";
+            dynamicEl.mongoUrl="/mongo/tqf/student";    
+            statusObj = this.studentList;
+            var glo = this;
+            dynamicEl.addEventListener('response', function(e) {
+              if(e.srcElement.id == 'studentInfo') {
+                // statusObj.push(e.detail);
+                // console.log(e.detail);
+                glo.push('studentList',e.detail);
+                /*
+                var info = e.detail.info;
+                for(var i=0;i<info.length;i++) {
+                  var key = info[i].acadyear+'#'+info[i].semester+'#'+info[i].status;
+                  if(!statusObj[key]) {
+                    statusObj[key]=0;
+                  }
+                  statusObj[key]++;
+                }
+                */
+              }
+            });
+            dynamicEl.regUrl="/studentinfo/"+student_id;
+            Polymer.dom(this.$.insertion_point).appendChild(dynamicEl);
+          }
+        }
+        //
+      },
+      _studentAdded : function(changeRecord) {
+        this.statusDict = {};
+        for(var j=0;j<this.studentList.length;j++) {
+          var info = this.studentList[j].info;
+          for(var i=0;i<info.length;i++) {
+            var key = info[i].acadyear+'#'+info[i].semester+'#'+info[i].status;
+            if(!this.statusDict[key]) {
+              this.statusDict[key]=0;
+            }
+            this.statusDict[key]++;
+          }
+        }
+        //console.log(this.statusDict);
+        this.set('summary',[]);
+        for(var key in this.statusDict) {
+          this.push('summary',{'key':key,'count':this.statusDict[key]})
+        }
+      }
+    });
+  </script>
+</dom-module>

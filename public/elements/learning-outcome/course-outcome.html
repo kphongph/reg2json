@@ -29,12 +29,12 @@
       doc-id="{{relationId}}" 
       doc="{{relation}}">
     </mongo-document>
-    
+    <!--
     <mongo-document url="/mongo/tqf/curriculum" 
       doc-id="{{relation.curriculum_id}}" 
       doc="{{curriculum}}">
     </mongo-document>
-    
+    -->
     
     <div class="vertical layout">
       <div>
@@ -67,22 +67,41 @@
           type:String,
           notify:true
         },
-        relation:Object,
+        relation: {
+          type:Object,
+          notify:true,
+          observer:'_relationChanged'
+        },
         curriculum: {
           type:Object,
           notify:true
         }
       },
       observers: [
-        '_mapping(relation, curriculum)',
-        '_change(relation.learning_outcome.name, curriculum)',
+        //'_mapping(relation, curriculum)',
+        '_change(relation.learning_outcome.name)',
         'outcomeChanged(relation.learning_outcome.content.*)'
       ],
-      _change:function(name,curriculum) {
+      _relationChanged:function() {
+        console.log('_relationChanged');
+        var mapping = this._mapping(this.relation,this.curriculum);
+        if(this.relation.learning_outcome) {
+          if(this.relation.learning_outcome.name) {
+            this.set('relation.learning_outcome.content',mapping.content);
+          }
+        } else {
+          this.set('relation.learning_outcome',mapping);
+        }
+      },
+      _change:function(newVal) {
+        console.log('_change',newVal);
+        var mapping = this._mapping(this.relation,this.curriculum);
+        this.set('relation.learning_outcome.content',mapping.content);
         //console.log(this.relation);
-        this._mapping(this.relation,curriculum);
+        //this._mapping(this.relation,curriculum);
       },
       outcomeChanged:function(changeRecord) {
+        //console.log(changeRecord);
         if(changeRecord.path.endsWith('value')) {
           var tmp = JSON.parse(JSON.stringify(this.relation));
           delete tmp['_id'];
@@ -93,24 +112,35 @@
         }
       },
       _mapping:function(relation,curriculum) {
+        console.log('_map');
         var category = null;
-        if(relation.learning_outcome == null) {
-          this.set('relation.learning_outcome',{'name':'','content':[]});
-        }
         
-        for(var i=0;i<curriculum.learning_outcome_list.length;i++) {
-          if(curriculum.learning_outcome_list[i].name == relation.learning_outcome.name) {
-            category = curriculum.learning_outcome_list[i];
-            break;
+        var relation_content = [];
+        var relation_name = '';
+        if(relation.learning_outcome != null) {
+          relation_content = JSON.parse(JSON.stringify(relation.learning_outcome.content));
+          relation_name = relation.learning_outcome.name;
+        } 
+        
+        if(relation_name.length == 0) {
+          category = JSON.parse(JSON.stringify(curriculum.learning_outcome_list[0]));
+          relation_name = category.name;
+        } else {
+          for(var i=0;i<curriculum.learning_outcome_list.length;i++) {
+            if(curriculum.learning_outcome_list[i].name == relation_name) {
+              category = JSON.parse(JSON.stringify(curriculum.learning_outcome_list[i]));
+              break;
+            }
           }
         }
+        
         var sorted_content = [];
         if(category!=null) {
           for(var i=0;i<category.content.length;i++) {
             var item = category.content[i];
             item.value = 0;
-            for(var j=0;j<relation.learning_outcome.content.length;j++) {
-              var tmp = relation.learning_outcome.content[j];
+            for(var j=0;j<relation_content.length;j++) {
+              var tmp = relation_content[j];
               if(item.label == tmp.label && item.type == tmp.type) {
                 if(tmp.value!=null) {
                   item.value = tmp.value;
@@ -118,15 +148,35 @@
                 break;
               }
             }
+            /*
+            for(var key in item) {
+              this.set('relation.learning_outcome.content.'+i+'.'+key,item[key]);
+            }
+            */
+            
             sorted_content.push(item);
-            this.push('relation.learning_outcome.content',item);
           }
         }
-        console.log(sorted_content);
-        if(sorted_content.length) {
-          this.splice('relation.learning_outcome.content',
-            sorted_content.length,sorted_content.length);
+        return {'name':relation_name,'content':sorted_content};
+        
+        // clear
+        //console.log(JSON.stringify(sorted_content));
+        
+        //this.splice('relation.learning_outcome.content',0,relation_content.length);
+        
+        //for(var i=0;i<relation_content.length;i++) {
+        //  this.pop('relation.learning_outcome.content');
+        //}
+        
+        /*
+        console.log(JSON.stringify(this.relation.learning_outcome.content));
+        if(sorted_content.length!=0) {
+          for(var i=0;i<sorted_content.length;i++) {
+            this.push('relation.learning_outcome.content',sorted_content[i]);
+          }
+          console.log(JSON.stringify(this.relation.learning_outcome.content));
         }
+        */
       }
     });
   </script>

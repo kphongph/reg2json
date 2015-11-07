@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var htmlToJson = require('html-to-json');
 var config = require('./config');
 var util = require('./util');
+var util2 = require('./util2');
 var app = express();
 
 
@@ -52,6 +53,24 @@ app.get('/course/:year/:semester', function (req, res) {
 
 app.get('/course/:year/:semester/:course', function (req, res) {
   util.getCourseInfo(req.params.year,req.params.semester,req.params.course,function(result) {  
+	res.json(result);
+  });
+});
+
+app.get('/student/:year/:facultyid', function (req, res) {
+  util2.getStudentSummaryByProgramInfo(req.params.year,req.params.facultyid,function(result) {  
+	res.json(result);
+  });
+});
+
+app.get('/student/:year/:facultyid/:curriculum_id', function (req, res) {
+  util2.getStudentByProgramInfo(req.params.year,req.params.facultyid,req.params.curriculum_id,function(result) {  
+	res.json(result);
+  });
+});
+
+app.get('/studentinfo/:student_id', function (req, res) {
+  util2.getStudentInfo(req.params.student_id,function(result) {  
 	res.json(result);
   });
 });
