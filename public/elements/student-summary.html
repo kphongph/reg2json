@@ -2,6 +2,7 @@
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="curriculum-dropdown.html">
 <link rel="import" href="reg-cache.html">
 
@@ -16,7 +17,7 @@
   <template>
 
     <reg-cache id="listStudent" mongo-url="/mongo/tqf/student" 
-      on-response="_handleStudentList" last-response="{{json}}">
+      on-cacheresponse="_handleStudentList" last-response="{{json}}">
     </reg-cache>
     
     <div id="insertion_point"></div>
@@ -37,12 +38,28 @@
         </div>
       </div>
       
-      <template is="dom-repeat" items="{{summary}}">
-        <div class="horizontal layout">
-          <div class="flex-2">{{item.key}}</div>
-          <div class="flex-1">{{item.count}}</div>
+      <div>
+        <paper-spinner active="{{loading}}"></paper-spinner>
+      </div>
+      
+      <div class="vertical layout">
+        <div class="horizontal layout center">
+          <div class="flex-3"></div>
+          <template is="dom-repeat" items="{{semesterList}}" sort="_sortByName">
+            <div class="flex-1">{{item.name}}</div>
+          </template>
         </div>
-      </template> 
+      
+        <template is="dom-repeat" items="{{summary}}" sort="_sortByName" as="status">
+          <div class="horizontal layout center">
+            <div class="flex-3">[<span>{{status.name}}</span>]</div>
+            <template is="dom-repeat" items="{{status.semester}}" sort="_sortByName">
+              <div class="flex-1">{{item.value}}</div>
+            </template>
+          </div>
+        </template>
+      </div>
+      
       
     </div>
         
@@ -57,12 +74,10 @@
           type:Array,
           notify:true
         },
+        loading:Boolean,
         summary: {
-          type:Array,
-          notify:true,
-          value:function() {
-            return [];
-          }
+          type:Object,
+          notify:true
         },
         curriculum : {
           type: Object
@@ -81,11 +96,14 @@
           this.$.listStudent.regUrl = "/student/"+year+"/207/"+curriculum.number;
         }
       },
+      _sortByName : function(a,b) {
+        return a.name.localeCompare(b.name);
+      },
       _handleStudentList : function(e) {
         if(e.srcElement.id == 'listStudent') {
           this.studentList = [];
-          this.statusDict = {};
           console.log(this.$.listStudent.lastResponse);
+          this.loading=true;
           for(var i=0;i<this.$.listStudent.lastResponse.length;i++) {
           //for(var i=0;i<2;i++) {
             var student_id = this.$.listStudent.lastResponse[i].student_id;
@@ -97,22 +115,8 @@
             dynamicEl.mongoUrl="/mongo/tqf/student";    
             statusObj = this.studentList;
             var glo = this;
-            dynamicEl.addEventListener('response', function(e) {
-              if(e.srcElement.id == 'studentInfo') {
-                // statusObj.push(e.detail);
-                // console.log(e.detail);
-                glo.push('studentList',e.detail);
-                /*
-                var info = e.detail.info;
-                for(var i=0;i<info.length;i++) {
-                  var key = info[i].acadyear+'#'+info[i].semester+'#'+info[i].status;
-                  if(!statusObj[key]) {
-                    statusObj[key]=0;
-                  }
-                  statusObj[key]++;
-                }
-                */
-              }
+            dynamicEl.addEventListener('cacheresponse', function(e) {
+              glo.push('studentList',e.detail);
             });
             dynamicEl.regUrl="/studentinfo/"+student_id;
             Polymer.dom(this.$.insertion_point).appendChild(dynamicEl);
@@ -121,21 +125,46 @@
         //
       },
       _studentAdded : function(changeRecord) {
-        this.statusDict = {};
-        for(var j=0;j<this.studentList.length;j++) {
-          var info = this.studentList[j].info;
-          for(var i=0;i<info.length;i++) {
-            var key = info[i].acadyear+'#'+info[i].semester+'#'+info[i].status;
-            if(!this.statusDict[key]) {
-              this.statusDict[key]=0;
+        if(this.studentList.length == this.$.listStudent.lastResponse.length) {
+          this.loading=false;
+          this.semesterList = [];
+          var statusDict = {};
+          var semesterDict = {};
+          for(var j=0;j<this.studentList.length;j++) {
+            var info = this.studentList[j].info;
+            for(var i=0;i<info.length;i++) {
+              var status = info[i].status;
+              var semester= info[i].acadyear+'/'+info[i].semester;
+              if(!statusDict[status]) {
+                statusDict[status]={'semester':{}};
+              }
+              if(!semesterDict[semester]) {
+                semesterDict[semester]=1;
+                this.push('semesterList',{'name':semester});
+              }
+              if(!statusDict[status]['semester'][semester]) {
+                statusDict[status]['semester'][semester]=0;
+              }
+              statusDict[status]['semester'][semester]++;
             }
-            this.statusDict[key]++;
           }
-        }
-        //console.log(this.statusDict);
-        this.set('summary',[]);
-        for(var key in this.statusDict) {
-          this.push('summary',{'key':key,'count':this.statusDict[key]})
+          this.set('summary',[]);
+          for(var status in statusDict) {
+            var tmp = {'name':status,'semester':[]};
+            for(var semester in semesterDict) {
+              var str = '';
+              if(statusDict[status]['semester'][semester]) {
+                str=''+statusDict[status]['semester'][semester];
+              }
+              tmp.semester.push({'name':semester,'value':str});
+            }
+            this.push('summary',tmp); 
+          }
+          /*
+          for(var key in statusDict) {
+            this.push('summary',{'name':key,'value':statusDict[key]});
+          }
+          */
         }
       }
     });

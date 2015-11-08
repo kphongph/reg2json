@@ -56,7 +56,6 @@
       '_updateQuery(regUrl,mongoUrl)'
       ],
       _updateQuery: function(regUrl,mongoUrl) {
-        console.log(regUrl,mongoUrl);
         this.loading = true;
         var querypath = regUrl;
         this.$.regQuery.url = querypath;  
@@ -71,8 +70,8 @@
         } else {
           if(!this.force) {
             this.set('lastResponse',lastResponse[0].content);
-            console.log(lastResponse[0].content);
-            this.fire('response',lastResponse[0].content, {bubbles: false});
+            // console.log(lastResponse[0].content);
+            this.fire('cacheresponse',lastResponse[0].content, {bubbles: false});
             this.loading = false;
           } else {
             this.$.deleteAjax.url = this.mongoUrl+lastResponse[0]._id;
@@ -84,7 +83,7 @@
       _handleRegResponse: function() {
         var lastResponse = this.$.regQuery.lastResponse;
         this.set('lastResponse',lastResponse);
-        this.fire('response',lastResponse, {bubbles: false});
+        this.fire('cacheresponse',lastResponse, {bubbles: false});
         this.loading = false;
         // update mongo content
         this.$.insertAjax.url = this.mongoUrl;
